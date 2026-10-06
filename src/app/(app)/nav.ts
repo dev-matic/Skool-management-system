@@ -1,4 +1,4 @@
-import type { Role } from "@/domain/roles";
+import { PHASE1_ROLES, type Role } from "@/domain/roles";
 
 export type NavIcon =
   "dashboard" | "setup" | "students" | "attendance" | "assessment" | "fees" | "audit";
@@ -12,7 +12,7 @@ export interface NavItem {
   comingIn: string | null;
 }
 
-const ALL: readonly Role[] = ["admin", "bursar", "teacher", "parent", "student"];
+const ALL: readonly Role[] = PHASE1_ROLES;
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: "dashboard", roles: ALL, comingIn: null },

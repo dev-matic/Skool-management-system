@@ -49,11 +49,11 @@ test("bursar with a phone-only account sees fees but not school setup", async ({
 });
 
 test("wrong password shows an error and keeps what was typed", async ({ page }) => {
-  await signIn(page, "0241000004", "not-the-password");
+  await signIn(page, "0241000002", "not-the-password");
   await expect(page.getByTestId("form-error")).toHaveText(
     "Incorrect phone number/email or password.",
   );
-  await expect(page.getByLabel("Phone number or email")).toHaveValue("0241000004");
+  await expect(page.getByLabel("Phone number or email")).toHaveValue("0241000002");
   await expect(page).toHaveURL(/\/login$/);
 });
 

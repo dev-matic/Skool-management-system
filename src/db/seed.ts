@@ -12,7 +12,7 @@ import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { placeholderEmailForPhone } from "../domain/login";
-import type { Role } from "../domain/roles";
+import type { Phase1Role } from "../domain/roles";
 import * as schema from "./schema";
 
 const { account, membership, school, user } = schema;
@@ -30,7 +30,8 @@ interface DemoUser {
   name: string;
   phone: string | null;
   email: string | null;
-  memberships: { school: SchoolSlug; role: Role }[];
+  // Phase 1 has no parent or student accounts (CLAUDE.md).
+  memberships: { school: SchoolSlug; role: Phase1Role }[];
 }
 
 export const DEMO_USERS: DemoUser[] = [
@@ -51,18 +52,6 @@ export const DEMO_USERS: DemoUser[] = [
     phone: "+233241000003",
     email: "teacher@demo-school.test",
     memberships: [{ school: "demo-basic", role: "teacher" }],
-  },
-  {
-    name: "Yaw Boateng",
-    phone: "+233241000004",
-    email: null,
-    memberships: [{ school: "demo-basic", role: "parent" }],
-  },
-  {
-    name: "Abena Boateng",
-    phone: null,
-    email: "student@demo-school.test",
-    memberships: [{ school: "demo-basic", role: "student" }],
   },
   {
     name: "Kwame Darko",

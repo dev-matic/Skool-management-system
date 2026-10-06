@@ -1,10 +1,10 @@
 import "server-only";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import { membership, school } from "@/db/schema";
-import { hasAnyRole, resolveActiveSchool, type Role } from "@/domain/roles";
+import { hasAnyRole, PHASE1_ROLES, resolveActiveSchool, type Role } from "@/domain/roles";
 import { getAuth } from "./auth";
 import { withDbContext, type Tx } from "./db-context";
 
@@ -52,7 +52,10 @@ export async function requireUser(): Promise<CurrentUser> {
   return current;
 }
 
-/** All active schools the user belongs to, with their roles in each. */
+/**
+ * All active schools the user belongs to, with their roles in each. Only
+ * Phase 1 roles count: a parent or student membership gives no access yet.
+ */
 export const listMySchools = cache(async (userId: string): Promise<MySchool[]> => {
   const rows = await withDbContext({ userId, schoolId: null }, (tx: Tx) =>
     tx
@@ -63,6 +66,7 @@ export const listMySchools = cache(async (userId: string): Promise<MySchool[]> =
         and(
           eq(membership.userId, userId),
           eq(membership.isActive, true),
+          inArray(membership.role, [...PHASE1_ROLES]),
           eq(school.isActive, true),
         ),
       )
