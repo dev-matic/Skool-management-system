@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/* System fonts only: nothing extra to download on slow connections. */
+@theme {
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+/* Print-ready pages (report cards, receipts, class lists) are A4. */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+}
