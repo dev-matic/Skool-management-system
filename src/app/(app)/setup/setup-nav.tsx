@@ -8,6 +8,7 @@ import { cx } from "@/components/ui";
 const SECTIONS = [
   { href: "/setup/years", label: "Years & terms" },
   { href: "/setup/classes", label: "Classes" },
+  { href: "/setup/subjects", label: "Subjects" },
   { href: "/setup/staff", label: "Staff" },
 ] as const;
 

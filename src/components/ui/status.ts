@@ -1,4 +1,5 @@
 import {
+  Archive,
   Ban,
   Check,
   CheckCheck,
@@ -42,6 +43,7 @@ export const STATUSES = {
   draft: { label: "Draft", tone: "neutral", icon: PencilLine },
   published: { label: "Published", tone: "success", icon: CircleCheck },
   withdrawn: { label: "Withdrawn", tone: "neutral", icon: Ban },
+  archived: { label: "Archived", tone: "neutral", icon: Archive },
   // Payments
   recorded: { label: "Recorded", tone: "neutral", icon: FileCheck },
   "pending-reconciliation": { label: "Pending reconciliation", tone: "info", icon: Hourglass },

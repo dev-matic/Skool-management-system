@@ -4,6 +4,7 @@ import { classGroup, classSubject, gradeLevel, membership, user } from "@/db/sch
 import { diffChanges } from "@/domain/audit-diff";
 import { STANDARD_LEVELS, type Stage } from "@/domain/levels";
 import { recordAudit } from "./audit";
+import { PG_FOREIGN_KEY, PG_UNIQUE, pgCode } from "./db-errors";
 import type { Tx } from "./db-context";
 import { withTenant, type TenantContext } from "./tenant";
 
@@ -40,20 +41,6 @@ export interface ClassRow {
 export interface TeacherOption {
   userId: string;
   name: string;
-}
-
-const PG_UNIQUE = "23505";
-const PG_FOREIGN_KEY = "23503";
-
-/** Postgres error code from a Drizzle error (the real error is the cause). */
-function pgCode(error: unknown): string | undefined {
-  let current: unknown = error;
-  while (current && typeof current === "object") {
-    const code = (current as { code?: unknown }).code;
-    if (typeof code === "string") return code;
-    current = (current as { cause?: unknown }).cause;
-  }
-  return undefined;
 }
 
 export async function listLevels(ctx: TenantContext): Promise<LevelRow[]> {
