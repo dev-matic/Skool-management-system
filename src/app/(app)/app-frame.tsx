@@ -2,6 +2,7 @@
 
 import {
   CalendarCheck,
+  CalendarClock,
   ClipboardList,
   History,
   LayoutDashboard,
@@ -21,6 +22,7 @@ import type { NavIcon, NavItem } from "./nav";
 const ICONS: Record<NavIcon, LucideIcon> = {
   dashboard: LayoutDashboard,
   setup: School,
+  timetable: CalendarClock,
   students: Users,
   attendance: CalendarCheck,
   assessment: ClipboardList,

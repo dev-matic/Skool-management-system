@@ -107,6 +107,15 @@ export async function listTerms(ctx: TenantContext): Promise<TermChoice[]> {
   );
 }
 
+/** Ids of terms that already have a day plan (sources to copy from). */
+export async function termsWithPlans(ctx: TenantContext): Promise<number[]> {
+  return withTenant(ctx, async (tx) =>
+    (await tx.selectDistinct({ termId: bellSchedule.termId }).from(bellSchedule)).map(
+      (r) => r.termId,
+    ),
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Day plans
 

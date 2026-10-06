@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   findClashes,
+  formatDays,
+  isoWeekday,
+  pickTerm,
   overlaps,
   parseTime,
   timeRange,
@@ -142,5 +145,34 @@ describe("findClashes", () => {
     expect(
       findClashes([slot({ teacherId: null })], [slot({ classId: 2, teacherId: null })]),
     ).toEqual([]);
+  });
+});
+
+describe("pickTerm and isoWeekday", () => {
+  const terms = [
+    { id: 2, startsOn: "2027-01-11", endsOn: "2027-04-09" },
+    { id: 1, startsOn: "2026-09-08", endsOn: "2026-12-11" },
+  ];
+  it("opens the asked term, else today's, else the next, else the latest", () => {
+    expect(pickTerm(terms, "2", "2026-10-06")?.id).toBe(2);
+    expect(pickTerm(terms, "99", "2026-10-06")?.id).toBe(1);
+    expect(pickTerm(terms, undefined, "2026-12-20")?.id).toBe(2);
+    expect(pickTerm(terms, undefined, "2027-08-01")?.id).toBe(2);
+    expect(pickTerm([], undefined, "2027-08-01")).toBeNull();
+  });
+
+  it("numbers weekdays Monday 1 to Sunday 7", () => {
+    expect(isoWeekday("2026-10-05")).toBe(1);
+    expect(isoWeekday("2026-10-06")).toBe(2);
+    expect(isoWeekday("2026-10-11")).toBe(7);
+  });
+});
+
+describe("formatDays", () => {
+  it("writes runs of days as a range and others as a list", () => {
+    expect(formatDays([5, 4, 3, 2, 1])).toBe("Mon–Fri");
+    expect(formatDays([1, 3, 5])).toBe("Mon, Wed, Fri");
+    expect(formatDays([6, 7])).toBe("Sat, Sun");
+    expect(formatDays([])).toBe("No days");
   });
 });

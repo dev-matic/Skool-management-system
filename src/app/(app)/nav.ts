@@ -1,7 +1,7 @@
 import { PHASE1_ROLES, type Role } from "@/domain/roles";
 
 export type NavIcon =
-  "dashboard" | "setup" | "students" | "attendance" | "assessment" | "fees" | "audit";
+  "dashboard" | "setup" | "timetable" | "students" | "attendance" | "assessment" | "fees" | "audit";
 
 export interface NavItem {
   label: string;
@@ -17,6 +17,13 @@ const ALL: readonly Role[] = PHASE1_ROLES;
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: "dashboard", roles: ALL, comingIn: null },
   { label: "School setup", href: "/setup", icon: "setup", roles: ["admin"], comingIn: null },
+  {
+    label: "Timetable",
+    href: "/timetable",
+    icon: "timetable",
+    roles: ["admin", "teacher"],
+    comingIn: null,
+  },
   {
     label: "Students",
     href: "/students",

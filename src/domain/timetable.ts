@@ -157,3 +157,43 @@ export function findClashes(
   }
   return [...new Set(messages)];
 }
+
+/**
+ * The term a timetable screen opens on: the one asked for, else the term
+ * running today, else the next one to start, else the latest.
+ */
+export function pickTerm<T extends { id: number; startsOn: string; endsOn: string }>(
+  terms: readonly T[],
+  requested: string | undefined,
+  today: string,
+): T | null {
+  const asked = terms.find((t) => String(t.id) === requested);
+  if (asked) return asked;
+  const sorted = [...terms].sort((a, b) => a.startsOn.localeCompare(b.startsOn));
+  return (
+    sorted.find((t) => t.startsOn <= today && today <= t.endsOn) ??
+    sorted.find((t) => t.startsOn > today) ??
+    sorted.at(-1) ??
+    null
+  );
+}
+
+/** ISO weekday (1 Monday ... 7 Sunday) of a yyyy-mm-dd date. */
+export function isoWeekday(iso: string): number {
+  const [y, m, d] = iso.split("-").map(Number);
+  const day = new Date(Date.UTC(y!, m! - 1, d!)).getUTCDay();
+  return day === 0 ? 7 : day;
+}
+
+const SHORT_DAYS = ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+/** [1,2,3,4,5] -> "Mon–Fri"; [1,3,5] -> "Mon, Wed, Fri". */
+export function formatDays(days: readonly number[]): string {
+  const sorted = [...new Set(days)].sort((a, b) => a - b);
+  if (sorted.length === 0) return "No days";
+  const consecutive = sorted.every((d, i) => i === 0 || d === sorted[i - 1]! + 1);
+  if (consecutive && sorted.length >= 3) {
+    return `${SHORT_DAYS[sorted[0]!]}–${SHORT_DAYS[sorted.at(-1)!]}`;
+  }
+  return sorted.map((d) => SHORT_DAYS[d]).join(", ");
+}
