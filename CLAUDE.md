@@ -117,8 +117,8 @@ Teachers, students and admins must be able to see who teaches what, when and whe
   class cannot have two subjects in the same period, and a room cannot be
   double-booked. Show clear error messages that name the clash.
 - Views: "My timetable" for each teacher (weekly grid, with today highlighted),
-  timetable per class, and an admin view across the school filterable by
-  teacher, class and day.
+  "My class timetable" for each student, timetable per class, and an admin view
+  across the school filterable by teacher, class and day.
 - Printable A4 timetables (per class and per teacher) that follow the design system.
 - Admin editing uses a weekly grid with drag-and-drop or quick-select cells, and
   keyboard-friendly entry. Include a way to copy a timetable from a previous term.
@@ -126,6 +126,19 @@ Teachers, students and admins must be able to see who teaches what, when and whe
   timetable never alters past records.
 - The teacher home screen reads "today's classes" from the timetable, and the
   attendance screen can open directly from a timetable entry.
+
+Timetable access (enforced on the server, not just hidden in the interface):
+
+- Student: sees ONLY their own class's timetable, read-only. Cannot see other
+  classes, other students, or any teacher's personal timetable beyond the
+  teacher's name shown against each lesson.
+- Teacher: sees their own timetable, plus the timetables of the classes they are
+  assigned to, read-only. Cannot edit timetables.
+- Parent (later phase): sees only the timetable of their own child's class.
+- Admin / headteacher: sees all timetables and is the only role that can create
+  or edit them (or a designated timetable officer role if the school wants one).
+- Every timetable query is scoped by school_id and by the viewer's role. Write
+  automated tests that prove a student cannot fetch another class's timetable.
 - Later phase (do not build yet): substitutions/cover for absent teachers,
   automatic timetable generation, and period-by-period attendance.
 
