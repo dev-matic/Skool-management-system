@@ -222,15 +222,16 @@ export async function getMatrix(ctx: TenantContext, yearId: number): Promise<Mat
 }
 
 /**
- * Saves which classes take which subjects for a year. Only active subjects
- * are shown on the grid, so only those can be added or removed here; links
- * to archived subjects are kept. Removing a subject also removes its
+ * Applies the ticks added and removed on the class-subject grid for a year.
+ * Only the changes are sent, so two people editing at once never undo each
+ * other's work. Only active subjects of this year's classes can change;
+ * links to archived subjects are kept. Removing a subject also removes its
  * teacher for that class.
  */
 export async function saveMatrix(
   ctx: TenantContext,
   yearId: number,
-  checked: readonly string[],
+  change: { add: readonly string[]; remove: readonly string[] },
   meta: RequestMeta,
 ): Promise<Result> {
   try {
@@ -248,12 +249,12 @@ export async function saveMatrix(
       const classIds = new Set(classes.map((c) => c.id));
       const subjectIds = new Set(subjects.map((s) => s.id));
 
-      const wanted = new Set(
-        checked.filter((key) => {
-          const [c, s] = key.split(":").map(Number);
-          return classIds.has(c!) && subjectIds.has(s!);
-        }),
-      );
+      const valid = (key: string) => {
+        const [c, s] = key.split(":").map(Number);
+        return classIds.has(c!) && subjectIds.has(s!);
+      };
+      const adds = new Set(change.add.filter(valid));
+      const removes = new Set(change.remove.filter(valid).filter((k) => !adds.has(k)));
       const current = await tx
         .select({
           id: classSubject.id,
@@ -268,8 +269,8 @@ export async function saveMatrix(
           ),
         );
       const currentKeys = new Set(current.map((r) => pairKey(r.classGroupId, r.subjectId)));
-      const toRemove = current.filter((r) => !wanted.has(pairKey(r.classGroupId, r.subjectId)));
-      const toAdd = [...wanted].filter((k) => !currentKeys.has(k));
+      const toRemove = current.filter((r) => removes.has(pairKey(r.classGroupId, r.subjectId)));
+      const toAdd = [...adds].filter((k) => !currentKeys.has(k));
 
       if (toRemove.length > 0) {
         await tx.delete(classSubject).where(

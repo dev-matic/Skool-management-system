@@ -9,6 +9,7 @@ const SECTIONS = [
   { href: "/setup/years", label: "Years & terms" },
   { href: "/setup/classes", label: "Classes" },
   { href: "/setup/subjects", label: "Subjects" },
+  { href: "/setup/teachers", label: "Teachers" },
   { href: "/setup/staff", label: "Staff" },
 ] as const;
 

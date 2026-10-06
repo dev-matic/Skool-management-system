@@ -120,3 +120,17 @@ export function termWeeks(startsOn: IsoDate, endsOn: IsoDate): number {
     (Date.parse(`${endsOn}T00:00:00Z`) - Date.parse(`${startsOn}T00:00:00Z`)) / 86_400_000 + 1;
   return Math.round(days / 7);
 }
+
+/** The year to show: the one asked for, else the one containing today, else the first listed. */
+export function pickYear<T extends { id: number; startsOn: IsoDate; endsOn: IsoDate }>(
+  years: readonly T[],
+  requested: string | undefined,
+  today: IsoDate,
+): T | null {
+  return (
+    years.find((y) => String(y.id) === requested) ??
+    years.find((y) => y.startsOn <= today && today <= y.endsOn) ??
+    years[0] ??
+    null
+  );
+}

@@ -23,7 +23,8 @@ export function Table({
   return (
     <div
       className={cx(
-        "overflow-x-auto rounded-panel border border-divider bg-surface print:overflow-visible print:border-black",
+        // relative: hidden screen-reader text stays inside the scroll box.
+        "relative overflow-x-auto rounded-panel border border-divider bg-surface print:overflow-visible print:border-black",
         className,
       )}
     >

@@ -19,7 +19,7 @@ import {
 import { getCurrentTerm, listYears } from "@/server/academic-years";
 import { getMatrix, listSubjects } from "@/server/subjects";
 import { requireRole } from "@/server/tenant";
-import { pickYear } from "../year";
+import { pickYear } from "@/domain/terms";
 import { AddSubjectForm, SubjectMatrix } from "./subject-forms";
 
 export const metadata: Metadata = { title: "Subjects" };

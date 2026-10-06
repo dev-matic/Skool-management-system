@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   overlappingYear,
+  pickYear,
   suggestYearName,
   termStatus,
   termWeeks,
@@ -127,5 +128,19 @@ describe("termWeeks", () => {
   it("counts weeks including both the first and last day", () => {
     expect(termWeeks("2026-09-08", "2026-12-11")).toBe(14);
     expect(termWeeks("2026-09-07", "2026-09-11")).toBe(1);
+  });
+});
+
+describe("pickYear", () => {
+  const years = [
+    { id: 2, startsOn: "2026-09-08", endsOn: "2027-07-23" },
+    { id: 1, startsOn: "2025-09-08", endsOn: "2026-07-24" },
+  ];
+
+  it("prefers the requested year, then the one containing today, then the first", () => {
+    expect(pickYear(years, "1", "2026-10-06")?.id).toBe(1);
+    expect(pickYear(years, undefined, "2026-02-01")?.id).toBe(1);
+    expect(pickYear(years, "99", "2026-08-15")?.id).toBe(2);
+    expect(pickYear([], undefined, "2026-08-15")).toBeNull();
   });
 });

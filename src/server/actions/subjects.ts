@@ -74,8 +74,12 @@ export async function saveMatrixAction(_previous: FormState, form: FormData): Pr
   const ctx = await requireRole("admin");
   const yearId = idOf(form, "yearId");
   if (!yearId) return { errors: { form: "Choose an academic year first." } };
-  const checked = form.getAll("taken").map(String);
-  const result = await saveMatrix(ctx, yearId, checked, await requestMeta());
+  const result = await saveMatrix(
+    ctx,
+    yearId,
+    { add: form.getAll("add").map(String), remove: form.getAll("remove").map(String) },
+    await requestMeta(),
+  );
   if (!result.ok) return { errors: { form: result.error } };
   revalidatePath("/setup/subjects");
   revalidatePath("/setup/classes");

@@ -201,14 +201,23 @@ export function SubjectMatrix({ yearId, classes, subjects, taken }: MatrixProps)
     <div className="flex flex-col gap-3" role="group" aria-label="Subjects by class">
       <form id={formId} action={action} className="hidden">
         <input type="hidden" name="yearId" value={yearId} />
-        {[...checked].map((k) => (
-          <input key={k} type="hidden" name="taken" value={k} />
-        ))}
+        {/* Only ticks changed on this page are sent, so saving never undoes
+            another person's changes. */}
+        {[...checked]
+          .filter((k) => !initial.has(k))
+          .map((k) => (
+            <input key={`add-${k}`} type="hidden" name="add" value={k} />
+          ))}
+        {[...initial]
+          .filter((k) => !checked.has(k))
+          .map((k) => (
+            <input key={`remove-${k}`} type="hidden" name="remove" value={k} />
+          ))}
       </form>
       {state.errors?.form && <Alert tone="danger">{state.errors.form}</Alert>}
       {state.ok && state.message && !dirty && <Alert tone="success">{state.message}</Alert>}
       {saveBar}
-      <div className="overflow-x-auto rounded-panel border border-divider bg-surface">
+      <div className="relative overflow-x-auto rounded-panel border border-divider bg-surface">
         <table className="border-collapse text-base">
           <caption className="sr-only">Tick the subjects each class takes</caption>
           <thead className="bg-subtle">

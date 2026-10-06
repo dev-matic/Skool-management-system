@@ -23,7 +23,7 @@ import { addStandardLevelsAction, moveLevelAction } from "@/server/actions/class
 import { listClasses, listLevels, listTeachers } from "@/server/classes";
 import { requireRole } from "@/server/tenant";
 import { AddClassForm, AddLevelForm } from "./class-forms";
-import { pickYear } from "../year";
+import { pickYear } from "@/domain/terms";
 
 export const metadata: Metadata = { title: "Classes" };
 

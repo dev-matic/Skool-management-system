@@ -78,7 +78,7 @@ describe("subjects", () => {
     const first = await saveMatrix(
       ctx,
       yearId,
-      [pairKey(jhs2a, maths), pairKey(jhs2a, english), pairKey(jhs2b, maths)],
+      { add: [pairKey(jhs2a, maths), pairKey(jhs2a, english), pairKey(jhs2b, maths)], remove: [] },
       meta,
     );
     expect(first).toEqual({ ok: true, message: "Saved: 3 added." });
@@ -86,7 +86,7 @@ describe("subjects", () => {
     const second = await saveMatrix(
       ctx,
       yearId,
-      [pairKey(jhs2a, maths), pairKey(jhs2b, maths)],
+      { add: [], remove: [pairKey(jhs2a, english)] },
       meta,
     );
     expect(second).toEqual({ ok: true, message: "Saved: 1 removed." });
@@ -96,29 +96,30 @@ describe("subjects", () => {
     expect((await listSubjects(ctx, yearId)).find((s) => s.id === maths)?.classCount).toBe(2);
   });
 
+  it("two people saving at once do not undo each other's ticks", async () => {
+    const science = await add("Integrated Science");
+    // Both open the grid; one ticks JHS 2A, the other ticks JHS 2B.
+    await saveMatrix(ctx, yearId, { add: [pairKey(jhs2a, science)], remove: [] }, meta);
+    await saveMatrix(ctx, yearId, { add: [pairKey(jhs2b, science)], remove: [] }, meta);
+    const taken = (await getMatrix(ctx, yearId)).taken;
+    expect(taken.has(pairKey(jhs2a, science))).toBe(true);
+    expect(taken.has(pairKey(jhs2b, science))).toBe(true);
+  });
+
   it("ignores pairs for classes or subjects that are not part of this year", async () => {
-    const result = await saveMatrix(
-      ctx,
-      yearId,
-      [...(await getMatrix(ctx, yearId)).taken, "999999:1"],
-      meta,
-    );
+    const result = await saveMatrix(ctx, yearId, { add: ["999999:1"], remove: ["999999:2"] }, meta);
     expect(result).toEqual({ ok: true, message: "No changes to save." });
   });
 
   it("keeps an archived subject's classes when the grid is saved", async () => {
     const french = await add("French");
-    await saveMatrix(
-      ctx,
-      yearId,
-      [...(await getMatrix(ctx, yearId)).taken, pairKey(jhs2a, french)],
-      meta,
-    );
+    await saveMatrix(ctx, yearId, { add: [pairKey(jhs2a, french)], remove: [] }, meta);
     await setSubjectArchived(ctx, french, true, meta);
 
     const matrix = await getMatrix(ctx, yearId);
     expect(matrix.subjects.some((s) => s.id === french)).toBe(false);
-    await saveMatrix(ctx, yearId, [...matrix.taken], meta);
+    // Even an explicit removal of an archived subject is ignored by the grid.
+    await saveMatrix(ctx, yearId, { add: [], remove: [pairKey(jhs2a, french)] }, meta);
 
     const links = await admin.db
       .select()
