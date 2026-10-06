@@ -54,6 +54,17 @@ clarity and trust. Motion should be minimal (simple transitions only).
 - The approved design system lives in docs/design-system.md. Reuse it everywhere.
   Do not restyle screens ad hoc, and ask before changing the design system.
 
+## Icons
+
+- Use one consistent open-source icon library (propose one for approval, e.g. a
+  set with a permissive license such as MIT or ISC) rendered as inline SVG
+  components. Do not mix icon sets.
+- One size scale and stroke weight everywhere. Icons support labels, never
+  replace them for important actions (Save, Delete, Record payment).
+- Do not copy icon files, logos or images from any third-party repo's public
+  folder. Record the icon library and its license in docs/licenses.md.
+- No emoji as icons.
+
 ## Design skills (installed in .claude/skills)
 
 - ui-ux-pro-max: used ONCE to propose the design system (palette, typography,
