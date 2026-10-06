@@ -101,6 +101,34 @@ clarity and trust. Motion should be minimal (simple transitions only).
 - Keep configuration (grading schemes, fee structures, terms) in the database or
   config, never hardcoded in components.
 
+## Timetable
+
+Teachers, students and admins must be able to see who teaches what, when and where.
+
+- Each school defines its own day structure: school days, periods with start and
+  end times, and breaks. Do not hardcode period counts or times.
+- A timetable entry links: term, class, subject, teacher, period, day of week,
+  and optionally a room. Builds on the teacher-to-class-and-subject assignments
+  from school setup.
+- Flexible teaching models: JHS/SHS usually have subject teachers moving between
+  classes, while KG/Primary often have one class teacher covering most subjects.
+  Support both.
+- Clash checks on save: a teacher cannot be in two classes in the same period, a
+  class cannot have two subjects in the same period, and a room cannot be
+  double-booked. Show clear error messages that name the clash.
+- Views: "My timetable" for each teacher (weekly grid, with today highlighted),
+  timetable per class, and an admin view across the school filterable by
+  teacher, class and day.
+- Printable A4 timetables (per class and per teacher) that follow the design system.
+- Admin editing uses a weekly grid with drag-and-drop or quick-select cells, and
+  keyboard-friendly entry. Include a way to copy a timetable from a previous term.
+- Timetables are tied to a term and keep history, so changing next term's
+  timetable never alters past records.
+- The teacher home screen reads "today's classes" from the timetable, and the
+  attendance screen can open directly from a timetable entry.
+- Later phase (do not build yet): substitutions/cover for absent teachers,
+  automatic timetable generation, and period-by-period attendance.
+
 ## Dashboards & analytics
 
 Each role gets a home screen that shows what needs action today, not decoration.
@@ -110,8 +138,8 @@ Each role gets a home screen that shows what needs action today, not decoration.
   missing scores).
 - Bursar: payments recorded today, outstanding balances by class, recent receipts,
   arrears list with a one-click route to the student's fee page.
-- Teacher: today's classes, attendance still to mark, score entry progress per
-  subject.
+- Teacher: today's classes (from the timetable), attendance still to mark,
+  score entry progress per subject.
 - Parent (later phase): their child's attendance, results and fee balance.
 
 Rules for every number or chart:
@@ -152,8 +180,9 @@ academics):
 ## Phase 1 scope (MVP)
 
 Accounts & roles; school setup (years, terms, classes, subjects, teacher
-assignments); student records with bulk CSV/Excel import; attendance; grades and
-printable report cards; fees and payments with receipts and arrears reports;
+assignments); timetable (class and teacher timetables with clash checks); student
+records with bulk CSV/Excel import; attendance; grades and printable report
+cards; fees and payments with receipts and arrears reports;
 role-based home dashboards (admin, bursar, teacher); focused analytics for fees,
 attendance and academics.
 
