@@ -1,6 +1,7 @@
 /**
- * Creates demo data for development and testing: two schools and one user per
- * role. Safe to run repeatedly (existing rows are left alone).
+ * Creates FAKE demo data for development and testing: two schools, staff
+ * accounts, and the demo school's setup (see seed-setup.ts). Safe to run
+ * repeatedly (existing rows are left alone).
  *
  *   pnpm db:seed
  *
@@ -14,6 +15,7 @@ import { Pool } from "pg";
 import { placeholderEmailForPhone } from "../domain/login";
 import type { Phase1Role } from "../domain/roles";
 import * as schema from "./schema";
+import { seedDemoSetup } from "./seed-setup";
 
 const { account, membership, school, user } = schema;
 
@@ -63,6 +65,26 @@ export const DEMO_USERS: DemoUser[] = [
       { school: "second-demo", role: "admin" },
     ],
   },
+  // FAKE demo teachers (phone-only accounts) used by the demo school setup.
+  ...(
+    [
+      ["Akua Nyarko", "+233241000010"],
+      ["Adwoa Asare", "+233241000011"],
+      ["Selorm Agbeko", "+233241000012"],
+      ["Mariama Seidu", "+233241000013"],
+      ["Kofi Boadu", "+233241000014"],
+      ["Yaw Mensah", "+233241000015"],
+      ["Abdul-Rahman Issah", "+233241000016"],
+      ["Kwabena Frimpong", "+233241000017"],
+      ["Nana Ama Osei", "+233241000018"],
+      ["Elikem Dzradosi", "+233241000019"],
+    ] as const
+  ).map(([name, phone]) => ({
+    name,
+    phone,
+    email: null,
+    memberships: [{ school: "demo-basic" as const, role: "teacher" as const }],
+  })),
   {
     name: "Esi Quaye",
     phone: "+233241000007",
@@ -94,6 +116,7 @@ async function main() {
         schoolIds.set(s.slug, row!.id);
       }
 
+      const userIdByPhone = new Map<string, string>();
       for (const u of DEMO_USERS) {
         const email = u.email ?? placeholderEmailForPhone(u.phone!);
         let [existing] = await tx.select({ id: user.id }).from(user).where(eq(user.email, email));
@@ -109,6 +132,7 @@ async function main() {
           });
           existing = { id };
         }
+        if (u.phone) userIdByPhone.set(u.phone, existing.id);
         for (const m of u.memberships) {
           const schoolId = schoolIds.get(m.school)!;
           const [already] = await tx
@@ -126,6 +150,9 @@ async function main() {
           }
         }
       }
+
+      // The second school is left without setup, to show empty screens.
+      await seedDemoSetup(tx, schoolIds.get("demo-basic")!, userIdByPhone);
     });
   } finally {
     await pool.end();
