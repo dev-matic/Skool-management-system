@@ -16,7 +16,7 @@ const ALL: readonly Role[] = PHASE1_ROLES;
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: "dashboard", roles: ALL, comingIn: null },
-  { label: "School setup", href: "/setup", icon: "setup", roles: ["admin"], comingIn: "M2" },
+  { label: "School setup", href: "/setup", icon: "setup", roles: ["admin"], comingIn: null },
   {
     label: "Students",
     href: "/students",

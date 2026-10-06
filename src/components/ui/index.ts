@@ -2,7 +2,7 @@ export { Alert } from "./alert";
 export { Badge } from "./badge";
 export { Button, LinkButton, buttonClass } from "./button";
 export { cx } from "./cx";
-export { Field, Input } from "./field";
+export { CheckboxGroup, Field, Input } from "./field";
 export { Icon } from "./icon";
 export { PageHeader, Panel } from "./page-header";
 export { StatusChip } from "./status-chip";

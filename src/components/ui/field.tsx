@@ -78,3 +78,68 @@ export function Input({ className, ...props }: ComponentProps<"input">) {
     />
   );
 }
+
+/**
+ * A group of checkboxes with one legend, hint and error, e.g. a person's
+ * roles. Checked values are submitted under `name`, one entry each.
+ */
+export function CheckboxGroup({
+  name,
+  legend,
+  options,
+  defaultValues = [],
+  hint,
+  error,
+  disabledValues = [],
+}: {
+  name: string;
+  legend: string;
+  options: readonly { value: string; label: string; description?: string }[];
+  defaultValues?: readonly string[];
+  hint?: string;
+  error?: string;
+  disabledValues?: readonly string[];
+}) {
+  const hintId = hint ? `${name}-hint` : undefined;
+  const errorId = error ? `${name}-error` : undefined;
+  return (
+    <fieldset
+      className="flex flex-col gap-1"
+      aria-describedby={[hintId, errorId].filter(Boolean).join(" ") || undefined}
+      aria-invalid={error ? true : undefined}
+    >
+      <legend className="mb-1 text-label font-semibold text-ink">{legend}</legend>
+      <div className="flex flex-col gap-1.5">
+        {options.map((option) => (
+          <label key={option.value} className="flex items-start gap-2">
+            <input
+              type="checkbox"
+              name={name}
+              value={option.value}
+              defaultChecked={defaultValues.includes(option.value)}
+              disabled={disabledValues.includes(option.value)}
+              className="mt-0.5 size-4 shrink-0 rounded-control border-input pointer-coarse:size-5"
+            />
+            <span>
+              <span className="font-medium">{option.label}</span>
+              {option.description && (
+                <span className="block text-label text-ink-secondary">{option.description}</span>
+              )}
+            </span>
+          </label>
+        ))}
+      </div>
+      {hint && (
+        <p id={hintId} className="text-label text-ink-secondary">
+          {hint}
+        </p>
+      )}
+      {error && (
+        <p id={errorId} className="flex items-start gap-1 text-label font-medium text-danger">
+          <Icon icon={CircleAlert} className="mt-px shrink-0" />
+          {error}
+        </p>
+      )}
+    </fieldset>
+  );
+}

@@ -46,6 +46,9 @@ export const STATUSES = {
   recorded: { label: "Recorded", tone: "neutral", icon: FileCheck },
   "pending-reconciliation": { label: "Pending reconciliation", tone: "info", icon: Hourglass },
   reconciled: { label: "Reconciled", tone: "success", icon: CheckCheck },
+  // Staff
+  active: { label: "Active", tone: "success", icon: CircleCheck },
+  deactivated: { label: "Deactivated", tone: "neutral", icon: Ban },
   // Data entry
   unsaved: { label: "Unsaved changes", tone: "warning", icon: CircleAlert },
 } as const satisfies Record<string, StatusDefinition>;
