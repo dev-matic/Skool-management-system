@@ -10,7 +10,12 @@ async function signIn(page: Page, identifier: string, password = PASSWORD) {
   await page.getByRole("button", { name: "Sign in" }).click();
 }
 
-const nav = (page: Page) => page.getByRole("navigation", { name: "Main" });
+// On small screens the menu sits behind a Menu button; open it if needed.
+async function mainNav(page: Page) {
+  const menuButton = page.getByRole("button", { name: "Open menu" });
+  if (await menuButton.isVisible()) await menuButton.click();
+  return page.getByRole("navigation", { name: "Main" });
+}
 
 test("protected pages redirect to sign in", async ({ page }) => {
   await page.goto("/dashboard");
@@ -22,23 +27,23 @@ test("admin signs in with a phone number typed the local way", async ({ page }) 
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByTestId("school-name")).toHaveText("Demo Basic School");
   await expect(page.getByRole("heading", { name: "Welcome, Akosua Mensah" })).toBeVisible();
-  await expect(nav(page)).toContainText("School setup");
-  await expect(nav(page)).toContainText("Fees & payments");
+  await expect(await mainNav(page)).toContainText("School setup");
+  await expect(await mainNav(page)).toContainText("Fees & payments");
 });
 
 test("teacher signs in with email and only sees teacher areas", async ({ page }) => {
   await signIn(page, "Teacher@Demo-School.test");
   await expect(page.getByTestId("school-name")).toHaveText("Demo Basic School");
-  await expect(nav(page)).toContainText("Students");
-  await expect(nav(page)).not.toContainText("School setup");
-  await expect(nav(page)).not.toContainText("Fees & payments");
+  await expect(await mainNav(page)).toContainText("Students");
+  await expect(await mainNav(page)).not.toContainText("School setup");
+  await expect(await mainNav(page)).not.toContainText("Fees & payments");
 });
 
 test("bursar with a phone-only account sees fees but not school setup", async ({ page }) => {
   await signIn(page, "+233241000002");
   await expect(page.getByText("as Bursar")).toBeVisible();
-  await expect(nav(page)).toContainText("Fees & payments");
-  await expect(nav(page)).not.toContainText("School setup");
+  await expect(await mainNav(page)).toContainText("Fees & payments");
+  await expect(await mainNav(page)).not.toContainText("School setup");
   // The placeholder email used internally for phone-only accounts is never shown.
   await expect(page.locator("body")).not.toContainText("phone.invalid");
 });

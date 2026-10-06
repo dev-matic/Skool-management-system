@@ -7,15 +7,17 @@ dependency is added, and re-run the transitive check below.
 
 ### Runtime
 
-| Package          | Version | License    | Purpose                                                 |
-| ---------------- | ------- | ---------- | ------------------------------------------------------- |
-| next             | 16.3.8  | MIT        | Web framework (App Router, server rendering)            |
-| react, react-dom | 19.3.0  | MIT        | UI library                                              |
-| drizzle-orm      | 0.45.x  | Apache-2.0 | Type-safe database queries                              |
-| pg               | 8.23.x  | MIT        | PostgreSQL driver                                       |
-| decimal.js       | 10.6.x  | MIT        | Exact decimal maths for money and scores                |
-| zod              | 4.6.x   | MIT        | Validation of env vars, forms and imports               |
-| server-only      | 0.0.1   | MIT        | Build error if server code is imported into the browser |
+| Package                                | Version | License    | Purpose                                                                 |
+| -------------------------------------- | ------- | ---------- | ----------------------------------------------------------------------- |
+| next                                   | 16.3.8  | MIT        | Web framework (App Router, server rendering)                            |
+| react, react-dom                       | 19.3.0  | MIT        | UI library                                                              |
+| drizzle-orm                            | 0.45.x  | Apache-2.0 | Type-safe database queries                                              |
+| pg                                     | 8.23.x  | MIT        | PostgreSQL driver                                                       |
+| decimal.js                             | 10.6.x  | MIT        | Exact decimal maths for money and scores                                |
+| zod                                    | 4.6.x   | MIT        | Validation of env vars, forms and imports                               |
+| server-only                            | 0.0.1   | MIT        | Build error if server code is imported into the browser                 |
+| lucide-react                           | 1.52.x  | ISC        | The app's only icon set, as inline SVG components (approved 06/10/2026) |
+| @fontsource-variable/plus-jakarta-sans | 5.3.x   | OFL-1.1    | Plus Jakarta Sans, self-hosted through next/font/local                  |
 
 ### Development and testing
 
