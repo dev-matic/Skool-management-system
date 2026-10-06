@@ -13,7 +13,9 @@ test("health check reports a reachable database", async ({ request }) => {
   expect(await response.json()).toEqual({ status: "ok", database: "ok" });
 });
 
-test("the component reference page is hidden in production builds", async ({ request }) => {
-  const response = await request.get("/dev/components");
-  expect(response.status()).toBe(404);
+test("reference and preview pages are hidden in production builds", async ({ request }) => {
+  for (const path of ["/dev/components", "/preview/dashboard"]) {
+    const response = await request.get(path);
+    expect(response.status(), path).toBe(404);
+  }
 });
