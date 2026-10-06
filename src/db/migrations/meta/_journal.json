@@ -36,6 +36,13 @@
       "when": 1791318659043,
       "tag": "0004_school_setup_security",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791318938794,
+      "tag": "0005_staff_other_school_check",
+      "breakpoints": true
     }
   ]
 }
