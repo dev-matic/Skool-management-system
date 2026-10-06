@@ -74,7 +74,7 @@ export function YearForm({ initial }: { initial: YearFormInitial }) {
               key={n}
               role="group"
               aria-label={`Term ${n}`}
-              className="grid gap-3 rounded-panel border border-divider bg-surface px-3 py-3 sm:grid-cols-[3rem_1fr_1fr_1fr]"
+              className="grid gap-3 rounded-panel border border-card-edge bg-surface shadow-card px-3 py-3 sm:grid-cols-[3rem_1fr_1fr_1fr]"
             >
               <span className="self-center text-label font-semibold text-ink-secondary">{n}</span>
               <Field

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, isIsoDate, parseDisplayDate, todayIn } from "./dates";
+import { formatDate, isIsoDate, parseDisplayDate, todayIn, weekdayName } from "./dates";
 
 describe("formatDate", () => {
   it("shows dates as dd/mm/yyyy", () => {
@@ -47,5 +47,13 @@ describe("todayIn", () => {
     const now = new Date("2025-12-31T23:30:00Z");
     expect(todayIn("Africa/Accra", now)).toBe("2025-12-31");
     expect(todayIn("Asia/Tokyo", now)).toBe("2026-01-01");
+  });
+});
+
+describe("weekdayName", () => {
+  it("names the day of the week", () => {
+    expect(weekdayName("2026-10-06")).toBe("Tuesday");
+    expect(weekdayName("2024-02-29")).toBe("Thursday");
+    expect(() => weekdayName("06/10/2026")).toThrow();
   });
 });

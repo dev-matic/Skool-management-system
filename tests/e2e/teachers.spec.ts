@@ -42,6 +42,53 @@ test("admin assigns a teacher and saves", async ({ page }, testInfo) => {
   await expect(grid.getByText("Saved 1 change.")).toBeVisible();
 });
 
+test("saving still works after someone else removes a subject meanwhile", async ({
+  page,
+  browser,
+}) => {
+  // Two FAKE subjects for JHS 1, named uniquely per run.
+  const id = Math.random().toString(36).slice(2, 7);
+  const [gone, kept] = [`Gone ${id}`, `Kept ${id}`];
+  await signIn(page, "024 100 0001");
+  await page.goto("/setup/subjects");
+  const addForm = page.getByRole("form", { name: "Add a subject" });
+  const subjectsGrid = page.getByRole("group", { name: "Subjects by class" });
+  for (const name of [gone, kept]) {
+    await addForm.getByLabel("Subject name").fill(name);
+    await addForm.getByRole("button", { name: "Add subject" }).click();
+    await expect(addForm.getByText(`${name} added.`)).toBeVisible();
+    await subjectsGrid.getByRole("checkbox", { name: `JHS 1: ${name}` }).check();
+  }
+  await subjectsGrid.getByRole("button", { name: "Save subjects by class" }).first().click();
+  await expect(subjectsGrid.getByText("Saved: 2 added.")).toBeVisible();
+
+  await page.goto("/setup/teachers");
+  const grid = page.getByRole("group", { name: "Teachers by class and subject" });
+  await expect(grid.getByRole("combobox", { name: `JHS 1 ${gone} teacher` })).toBeVisible();
+
+  // Another admin takes the first subject off JHS 1 while this page is open.
+  const other = await browser.newPage();
+  await signIn(other, "024 100 0001");
+  await other.goto("/setup/subjects");
+  const otherGrid = other.getByRole("group", { name: "Subjects by class" });
+  await otherGrid.getByRole("checkbox", { name: `JHS 1: ${gone}` }).uncheck();
+  await otherGrid.getByRole("button", { name: "Save subjects by class" }).first().click();
+  await expect(otherGrid.getByText("Saved: 1 removed.")).toBeVisible();
+
+  await grid
+    .getByRole("combobox", { name: `JHS 1 ${kept} teacher` })
+    .selectOption({ label: "Kwabena Frimpong" });
+  await grid.getByRole("button", { name: "Save teachers" }).first().click();
+  await expect(grid.getByText("Saved 1 change.")).toBeVisible();
+  await expect(grid.getByRole("combobox", { name: `JHS 1 ${gone} teacher` })).toHaveCount(0);
+
+  // Leave JHS 1 as seeded.
+  await otherGrid.getByRole("checkbox", { name: `JHS 1: ${kept}` }).uncheck();
+  await otherGrid.getByRole("button", { name: "Save subjects by class" }).first().click();
+  await expect(otherGrid.getByText("Saved: 1 removed.")).toBeVisible();
+  await other.close();
+});
+
 test("the class teacher can take every subject in one click", async ({ page }) => {
   await signIn(page, "024 100 0001");
   await page.goto("/setup/teachers");

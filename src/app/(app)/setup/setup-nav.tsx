@@ -16,8 +16,8 @@ const SECTIONS = [
 export function SetupNav() {
   const pathname = usePathname();
   return (
-    <nav aria-label="School setup" className="no-print border-b border-divider">
-      <ul className="-mb-px flex gap-1 overflow-x-auto">
+    <nav aria-label="School setup" className="no-print">
+      <ul className="inline-flex max-w-full gap-1 overflow-x-auto rounded-panel border border-card-edge bg-surface p-1 shadow-card">
         {SECTIONS.map((s) => {
           const active = pathname === s.href || pathname.startsWith(`${s.href}/`);
           return (
@@ -26,10 +26,10 @@ export function SetupNav() {
                 href={s.href}
                 aria-current={active ? "page" : undefined}
                 className={cx(
-                  "inline-flex h-9 items-center border-b-2 px-3 font-medium whitespace-nowrap",
+                  "inline-flex h-8 items-center rounded-control px-3 whitespace-nowrap pointer-coarse:h-10",
                   active
-                    ? "border-brand-strong text-ink"
-                    : "border-transparent text-ink-secondary hover:text-ink",
+                    ? "bg-brand-tint font-semibold text-ink"
+                    : "font-medium text-ink-secondary hover:bg-subtle hover:text-ink",
                 )}
               >
                 {s.label}

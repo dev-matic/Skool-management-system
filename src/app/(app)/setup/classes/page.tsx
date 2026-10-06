@@ -161,7 +161,7 @@ export default async function ClassesPage({
           </p>
         </div>
         {levels.length === 0 ? (
-          <div className="flex flex-col items-start gap-3 rounded-panel border border-divider bg-surface px-4 py-4">
+          <div className="flex flex-col items-start gap-3 rounded-panel border border-card-edge bg-surface shadow-card px-4 py-4">
             <p>Start with the usual Ghanaian basic school levels, then rename or add as needed.</p>
             <form action={addStandardLevelsAction}>
               <Button type="submit" variant="primary" icon={ListPlus}>
@@ -235,7 +235,7 @@ export default async function ClassesPage({
             </TBody>
           </Table>
         )}
-        <div className="rounded-panel border border-divider bg-surface px-3 py-3">
+        <div className="rounded-panel border border-card-edge bg-surface shadow-card px-3 py-3">
           <AddLevelForm />
         </div>
       </section>

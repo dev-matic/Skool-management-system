@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { previewPagesEnabled } from "../dev/preview-pages";
-import "./preview.css";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 

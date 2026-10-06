@@ -28,7 +28,7 @@ export function AddSubjectForm() {
       action={action}
       noValidate
       aria-label="Add a subject"
-      className="flex flex-col gap-2 rounded-panel border border-divider bg-surface px-3 py-3"
+      className="flex flex-col gap-2 rounded-panel border border-card-edge bg-surface shadow-card px-3 py-3"
     >
       {errors.form && <Alert tone="danger">{errors.form}</Alert>}
       {state.ok && state.message && <Alert tone="success">{state.message}</Alert>}
@@ -217,7 +217,7 @@ export function SubjectMatrix({ yearId, classes, subjects, taken }: MatrixProps)
       {state.errors?.form && <Alert tone="danger">{state.errors.form}</Alert>}
       {state.ok && state.message && !dirty && <Alert tone="success">{state.message}</Alert>}
       {saveBar}
-      <div className="relative overflow-x-auto rounded-panel border border-divider bg-surface">
+      <div className="relative overflow-x-auto rounded-panel border border-card-edge bg-surface shadow-card">
         <table className="border-collapse text-base">
           <caption className="sr-only">Tick the subjects each class takes</caption>
           <thead className="bg-subtle">

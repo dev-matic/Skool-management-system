@@ -18,7 +18,7 @@ export default async function SelectSchoolPage() {
     <div className="mx-auto max-w-md px-4 pt-[10vh]">
       <h1 className="text-title font-semibold">Choose a school</h1>
       <p className="mt-1 text-ink-secondary">You have access to more than one school.</p>
-      <ul className="mt-5 divide-y divide-divider rounded-panel border border-divider bg-surface">
+      <ul className="mt-5 divide-y divide-divider rounded-panel border border-card-edge bg-surface shadow-card">
         {schools.map((s) => (
           <li key={s.schoolId}>
             <form action={chooseSchool}>

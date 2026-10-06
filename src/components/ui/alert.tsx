@@ -27,7 +27,11 @@ export function Alert({
   return (
     <div
       role={tone === "danger" ? "alert" : "status"}
-      className={cx("flex gap-2 rounded-panel px-3 py-2 text-base", TONE_CLASSES[tone], className)}
+      className={cx(
+        "flex gap-2 rounded-control px-3 py-2 text-base",
+        TONE_CLASSES[tone],
+        className,
+      )}
       {...props}
     >
       <Icon icon={ICONS[tone]} className="mt-0.5 shrink-0" />

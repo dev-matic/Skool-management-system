@@ -1,8 +1,9 @@
 # Design system
 
-Approved 06/10/2026. This is the single source of truth for how every screen
-looks and behaves. Reuse it everywhere; do not restyle screens ad hoc. Ask
-before changing anything in this file (see CLAUDE.md).
+Approved 06/10/2026; "soft" style revision approved 06/10/2026. This is the
+single source of truth for how every screen looks and behaves. Reuse it
+everywhere; do not restyle screens ad hoc. Ask before changing anything in this
+file (see CLAUDE.md).
 
 Proposed with the ui-ux-pro-max skill, filtered against CLAUDE.md. Where the
 two disagree, CLAUDE.md wins.
@@ -25,6 +26,9 @@ two disagree, CLAUDE.md wins.
 4. **Keyboard first.** Every action works without a mouse, with a visible focus ring.
 5. **Prints cleanly.** Report cards, receipts and class lists are A4, black on white.
 6. **Light on slow internet.** One font file, inline SVG icons, no images for UI.
+7. **Soft, not decorative.** White rounded cards on a lightly tinted page, gentle
+   pastel tints for figures and categories. Softness comes from shape and tint,
+   never from gradients, blur, heavy shadows or extra padding.
 
 ## Colour
 
@@ -35,11 +39,12 @@ Light theme only. Contrast ratios are WCAG 2.2, checked for every text pair.
 
 | Token              | Hex       | Use                                             | Contrast        |
 | ------------------ | --------- | ----------------------------------------------- | --------------- |
-| `--bg-page`        | `#F8FAFC` | App background                                  |                 |
+| `--bg-page`        | `#F2F5FA` | App background (lightly tinted)                 |                 |
 | `--bg-surface`     | `#FFFFFF` | Tables, forms, panels, dialogs                  |                 |
 | `--bg-subtle`      | `#F1F5F9` | Table header, disabled fields, neutral chips    |                 |
 | `--bg-row-hover`   | `#F8FAFC` | Table row hover                                 |                 |
 | `--border-divider` | `#E2E8F0` | Lines between rows and panels (decorative only) |                 |
+| `--border-card`    | `#E3E9F1` | Soft 1px edge around cards (decorative only)    |                 |
 | `--border-input`   | `#64748B` | Input, select and checkbox borders              | 4.8:1 on white  |
 | `--text`           | `#0F172A` | All body text, table cells, button text         | 17.9:1 on white |
 | `--text-secondary` | `#475569` | Hints, metadata, column headers                 | 7.6:1 on white  |
@@ -49,21 +54,44 @@ No text is ever lighter than `--text-secondary`.
 
 ### Brand: light blue
 
-| Token            | Hex       | Use                                              | Contrast                 |
-| ---------------- | --------- | ------------------------------------------------ | ------------------------ |
-| `--brand`        | `#7DD3FC` | Primary button fill, top bar, active nav item    | `--text` on it 10.7:1    |
-| `--brand-hover`  | `#38BDF8` | Primary button hover and pressed                 | `--text` on it 8.3:1     |
-| `--brand-edge`   | `#0284C7` | 1px border on primary buttons                    | 4.1:1 on white (≥ 3:1)   |
-| `--brand-tint`   | `#E0F2FE` | Selected table row, highlighted grid cell        | `--text` on it 15.6:1    |
-| `--brand-strong` | `#0369A1` | Links (always underlined), selected-row left bar | 5.9:1 on white           |
-| `--focus`        | `#1D4ED8` | Focus ring, 2px solid with 2px offset            | 6.7:1 white, 4.0:1 brand |
+| Token            | Hex       | Use                                                        | Contrast                 |
+| ---------------- | --------- | ---------------------------------------------------------- | ------------------------ |
+| `--brand`        | `#7DD3FC` | Primary button fill, school mark                           | `--text` on it 10.7:1    |
+| `--brand-hover`  | `#38BDF8` | Primary button hover and pressed                           | `--text` on it 8.3:1     |
+| `--brand-edge`   | `#0284C7` | 1px border on primary buttons                              | 4.1:1 on white (≥ 3:1)   |
+| `--brand-tint`   | `#E0F2FE` | Active nav item, selected row, highlighted cell, term pill | `--text` on it 15.6:1    |
+| `--brand-strong` | `#0369A1` | Links (always underlined), selected-row left bar           | 5.9:1 on white           |
+| `--focus`        | `#1D4ED8` | Focus ring, 2px solid with 2px offset                      | 6.7:1 white, 4.0:1 brand |
 
 - Text on light blue is always `--text` (dark). White text is never used on
   `--brand` or `--brand-hover`.
 - **Per-school colour.** A school may replace `--brand` with its own colour only
   if `--text` on it scores at least 4.5:1 and the colour is not a status hue
-  (green, amber or red). Otherwise the school colour appears only as a 4px stripe
-  on the top bar and as the rule under printed headers, and light blue stays.
+  (green, amber or red). Otherwise the school colour appears only as the school
+  mark in the sidebar and as the rule under printed headers, and light blue stays.
+
+### Tints (soft accents)
+
+Pastel backgrounds for figure tiles, icon squares, initials circles and
+timetable subjects. They are **not** status colours: they never mean good or
+bad, and anything they mark also has a word. Text on a tint is always `--text`.
+
+| Tint  | Background | Accent ink (icons, bars) | `--text` on bg | Ink on bg |
+| ----- | ---------- | ------------------------ | -------------- | --------- |
+| Sky   | `#E3F1FB`  | `#0369A1`                | 15.5:1         | 5.2:1     |
+| Mint  | `#E2F4E9`  | `#15803D`                | 15.6:1         | 4.4:1     |
+| Peach | `#FDECE0`  | `#C2410C`                | 15.5:1         | 4.5:1     |
+| Lilac | `#ECE9FB`  | `#6D28D9`                | 15.0:1         | 6.0:1     |
+
+Tints are assigned in this order (sky, mint, peach, lilac) and repeat. Accent
+ink is for icons and bars only (at least 3:1), never for body text.
+
+### Charts
+
+Simple bar, line and table only (CLAUDE.md). Bars and lines use `--brand-edge`
+(`#0284C7`) on a `--brand-tint` track; a second series uses the tint accent inks.
+Exact figures always sit beside or on the chart. Axes and grid lines use
+`--border-card`, labels `--text-secondary`.
 
 ### Status
 
@@ -95,6 +123,7 @@ Checked in the official font file: it has tabular figures (`tnum`).
 | Base            | 14 / 20            | 400    | Body, table cells, inputs, buttons  |
 | Label           | 13 / 18            | 600    | Field labels, table headers         |
 | Caption         | 12 / 16            | 600    | Status chips, badges (minimum size) |
+| Figure          | 26 / 32            | 700    | The number on a figure tile         |
 | Reading         | 16 / 24            | 400    | Report-card comments, long notes    |
 | Print body      | 11pt               | 400    | A4 documents                        |
 
@@ -123,20 +152,31 @@ Checked in the official font file: it has tabular figures (`tnum`).
   grow to 40px.
 - **Table rows:** 36px default, 32px compact. Cell padding 8px vertical, 12px
   horizontal.
-- **Radius:** 4px on controls and chips, 6px on panels and dialogs.
-- **Depth:** panels use a 1px `--border-divider`, no shadow. Only menus, popovers
-  and dialogs have one shadow: `0 4px 12px rgb(15 23 42 / 0.12)`.
+- **Radius:** 8px on inputs, buttons, nav items and icon squares; 14px on cards,
+  panels and dialogs; fully round (pill) on status chips, badges, the term pill
+  and initials circles.
+- **Depth:** cards are white with a 1px `--border-card` and the faintest shadow,
+  `0 1px 2px rgb(15 23 42 / 0.04)`. Menus, popovers and dialogs have one shadow:
+  `0 4px 12px rgb(15 23 42 / 0.12)`. Nothing heavier.
+- **Card padding:** 16px; 16px gaps between cards. Tables inside cards keep the
+  36px rows above.
 - **Motion:** colour and opacity only, 120–150ms ease-out. Nothing moves or slides.
   With `prefers-reduced-motion: reduce`, no transitions at all.
 
 ## Layout
 
-- **Top bar** (48px, `--brand` background, `--text`): school name, current
-  term, search, user menu. A school colour stripe sits on top when set.
-- **Sidebar** (224px, collapsible to icons with tooltips): main sections. Active
-  item has `--brand-tint` background and a 3px `--brand-strong` left bar.
+- **Page background** `--bg-page`; content sits in white cards.
+- **Sidebar** (240px, white, 1px `--border-card` edge): school mark (initials in a
+  `--brand` rounded square) with the school name, then a "Menu" label and the
+  main sections. Active item: `--brand-tint` background, 8px radius, 600 weight,
+  icon in `--brand-strong`. Collapsible to icons with tooltips.
+- **Top bar** (56px, white, 1px `--border-card` underneath): search (rounded,
+  `--bg-page` fill), current term as a `--brand-tint` pill, user initials circle
+  with name and role, sign out.
 - **Content**: full width up to 1440px, 24px page padding. Page title row holds
   the title, then actions on the right (one primary at most).
+- **Home screens** start with a greeting and the date, then quick actions, then
+  figure tiles, then the cards with the lists behind them.
 - Below 1024px the sidebar becomes a drawer. Below 640px tables scroll
   sideways with the first column fixed; forms become one column.
 
@@ -227,13 +267,13 @@ The table, with editable cells, for entering a whole class at once.
 ### Badge
 
 Neutral facts and counts: "JHS 2", "Boarding", "3 unreconciled".
-`--bg-subtle` background, `--text`, 12px 600, 4px radius, 20px tall. Never
+`--bg-subtle` background, `--text`, 12px 600, pill shape, 20px tall. Never
 carries status meaning.
 
 ### Status chip
 
-Icon + word, in the status colours above. 22px tall, 12px 600, 4px radius,
-6px horizontal padding, 16px icon.
+Icon + word, in the status colours above. 22px tall, 12px 600, pill shape,
+8px horizontal padding, 16px icon.
 
 | Area       | Chips                                          |
 | ---------- | ---------------------------------------------- |
@@ -241,6 +281,39 @@ Icon + word, in the status colours above. 22px tall, 12px 600, 4px radius,
 | Attendance | Present · Absent · Late · Excused              |
 | Records    | Draft · Published · Withdrawn                  |
 | Payments   | Recorded · Pending reconciliation · Reconciled |
+
+### Card
+
+White, 14px radius, `--border-card` edge, faint shadow, 16px padding. Title
+(16px 600) with an optional one-line subtitle in `--text-secondary`; actions or
+filters on the right of the title row. Cards hold tables, lists and charts.
+
+### Figure tile
+
+A number someone acts on, e.g. "Attendance today 93.7% · 21 absent".
+
+- Tint background, label (600), the figure (Figure style, tabular figures), one
+  detail line, and a link label with an arrow ("See classes →"). Icon in a white
+  8px-radius square in the tint's accent ink.
+- The whole tile is a link to the list behind the number. A figure that leads
+  nowhere is not shown.
+- At most one row of four on a home screen; each tile shows something different.
+
+### Quick actions
+
+A row of buttons near the top of a home screen for the role's most common
+tasks ("Add staff", "Record payment"). Icon + label; the first may be primary.
+
+### Initials circle
+
+People are shown with initials in a tinted circle (no photos of children).
+32px in lists, 36px in the top bar. Decorative: the name is always beside it.
+
+### Timetable cell
+
+A lesson shows the subject (600) and the teacher or class (`--text-secondary`)
+on the subject's tint, 8px radius. Breaks are a full-width `--bg-subtle` band
+with the break name and times. Today's column has a `--brand-tint` header.
 
 ### Dialog and confirmation
 
@@ -284,5 +357,7 @@ From the skill's suggestions, rejected because they conflict with CLAUDE.md:
   orange, claymorphism.
 - Landing-page patterns: hero sections, feature grids, repeated calls to action.
 - Scroll-reveal animation and any animation library.
-- Rows of identical KPI summary cards and decorative charts.
+- Rows of identical KPI summary cards and decorative charts. (Figure tiles are
+  allowed only as described above: each different, each a link to its list.)
+- All-caps labels (the sidebar "Menu" label is sentence case).
 - Glassmorphism, gradient banners, heavy shadows, emoji icons.
