@@ -7,6 +7,14 @@ before changing anything in this file (see CLAUDE.md).
 Proposed with the ui-ux-pro-max skill, filtered against CLAUDE.md. Where the
 two disagree, CLAUDE.md wins.
 
+## Implementation
+
+- Styling with **Tailwind CSS**; the tokens below become Tailwind theme values.
+- Components are the project's own, built from this document. **No shadcn.**
+- **Radix UI primitives** (MIT) only where accessibility is hard to get right:
+  dialogs, dropdown menus, popovers and searchable pickers. Added one at a time
+  when a screen needs it, restyled with these tokens.
+
 ## Principles
 
 1. **A work tool, not a website.** Bursars, teachers and admins use it all day
