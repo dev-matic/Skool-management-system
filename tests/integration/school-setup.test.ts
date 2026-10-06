@@ -177,25 +177,21 @@ describe("school setup database rules", () => {
 
   it("refuses badly named academic years and backwards dates", async () => {
     await expectDbError(
-      admin.db
-        .insert(academicYear)
-        .values({
-          schoolId: schoolA.id,
-          name: "2025-26",
-          startsOn: "2026-09-07",
-          endsOn: "2027-07-23",
-        }),
+      admin.db.insert(academicYear).values({
+        schoolId: schoolA.id,
+        name: "2025-26",
+        startsOn: "2026-09-07",
+        endsOn: "2027-07-23",
+      }),
       /academic_year_name_format/,
     );
     await expectDbError(
-      admin.db
-        .insert(academicYear)
-        .values({
-          schoolId: schoolA.id,
-          name: "2026/2027",
-          startsOn: "2027-07-23",
-          endsOn: "2026-09-07",
-        }),
+      admin.db.insert(academicYear).values({
+        schoolId: schoolA.id,
+        name: "2026/2027",
+        startsOn: "2027-07-23",
+        endsOn: "2026-09-07",
+      }),
       /academic_year_dates/,
     );
   });
