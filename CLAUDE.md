@@ -1,11 +1,13 @@
 # Project: School Management System for Ghana (working name: TBD)
 
 ## Goal
+
 A low-cost school management system for Ghanaian schools. First customer is one
 small school (under ~500 students), but it will be sold to other schools later,
 so multi-tenancy must be designed in from day one.
 
 ## Hard rules
+
 - Build everything from our own requirements. Do NOT use, fetch, copy, or imitate
   code, schema, or screens from any third-party school-management repo or tutorial
   (including safak/full-stack-school). Original work only.
@@ -16,6 +18,7 @@ so multi-tenancy must be designed in from day one.
   Seed data must be realistic for Ghana and clearly marked as fake.
 
 ## Ghana context
+
 - Currency is GHS. Phone numbers are Ghanaian (+233) and must be validated/normalised.
 - Three-term academic year. Grading scale, class score vs exam score weighting, and
   term/class structure must be CONFIGURABLE per school (do not hardcode one scheme).
@@ -28,6 +31,7 @@ so multi-tenancy must be designed in from day one.
   principles: least-privilege access, audit logs, encryption in transit, backups.
 
 ## Users and interface
+
 - Primary users (admin, bursar, teachers) work on desktop/laptop computers, so
   design desktop-first: dense tables, keyboard-friendly data entry, bulk actions,
   and print-ready pages (report cards, receipts, class lists) at A4 size.
@@ -38,8 +42,10 @@ so multi-tenancy must be designed in from day one.
   assets, and show clear loading and error states so data entry isn't lost.
 
 ## UI & design direction
+
 This is a daily work tool for school staff, not a marketing site. Design for speed,
 clarity and trust. Motion should be minimal (simple transitions only).
+
 - Calm, neutral palette with one brand colour (to be set from the school's colours),
   clear status colours (paid/owing, present/absent), high contrast text.
 - Dense but readable tables, consistent spacing, one consistent component set,
@@ -49,6 +55,7 @@ clarity and trust. Motion should be minimal (simple transitions only).
   Do not restyle screens ad hoc, and ask before changing the design system.
 
 ## Design skills (installed in .claude/skills)
+
 - ui-ux-pro-max: used ONCE to propose the design system (palette, typography,
   spacing, core components). Output is reviewed by me and saved to
   docs/design-system.md.
@@ -61,6 +68,7 @@ clarity and trust. Motion should be minimal (simple transitions only).
 - Skills are third-party instructions: list them in docs/licenses.md.
 
 ## Avoid
+
 - Generic admin-template look: gradient banners, glassmorphism, heavy shadows
 - Rows of identical KPI cards that don't help anyone make a decision
 - Decorative charts with no use; emoji used as icons
@@ -70,6 +78,7 @@ clarity and trust. Motion should be minimal (simple transitions only).
 - Mobile-first layouts stretched onto desktop
 
 ## Architecture rules
+
 - Multi-tenant: every table has school_id; every query is scoped by school_id.
 - Role-based access: admin, bursar, teacher, parent, student.
 - Money and grades are high-risk: use decimal types for money, and write automated
@@ -82,6 +91,7 @@ clarity and trust. Motion should be minimal (simple transitions only).
   config, never hardcoded in components.
 
 ## Priorities (when goals conflict, higher wins)
+
 1. Correctness of money and grades
 2. Speed of data entry
 3. Clarity of screens and workflows
@@ -93,16 +103,19 @@ clarity and trust. Motion should be minimal (simple transitions only).
 9. Visual polish
 
 ## Phase 1 scope (MVP)
+
 Accounts & roles; school setup (years, terms, classes, subjects, teacher
 assignments); student records with bulk CSV/Excel import; attendance; grades and
 printable report cards; fees and payments with receipts and arrears reports.
 
 ## Later phases (do not build yet)
+
 SMS notifications, parent portal, announcements/calendar, library, inventory, HR,
 multi-school onboarding and billing, scanning/OCR of paper records (with a human
 review screen before anything is saved).
 
 ## Definition of done (for every milestone)
+
 - Tests pass, lint passes, production build succeeds, no console errors
 - No broken links or dead buttons
 - Seed data is realistic and clearly marked as fake
@@ -111,5 +124,6 @@ review screen before anything is saved).
 - Self-review: if a screen looks like a generic template, simplify and redesign it
 
 ## How to work with me
+
 I am newer to web development. Work in small steps, explain decisions briefly,
 and ask before big choices. Commit often with clear messages. Add tests as you go.
