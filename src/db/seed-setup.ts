@@ -142,8 +142,10 @@ export async function seedDemoSetup(tx: Tx, schoolId: number, userIdByPhone: Map
     .from(classGroup)
     .where(and(eq(classGroup.schoolId, schoolId), eq(classGroup.academicYearId, year!.id)));
 
+  // Only the demo classes defined above; classes added by hand are left alone.
   const rows = classes.flatMap((c) => {
-    const def = CLASSES.find((d) => d.name === c.name)!;
+    const def = CLASSES.find((d) => d.name === c.name);
+    if (!def) return [];
     const stage = levelByName.get(def.level)!.stage;
     return SUBJECTS[stage].map((name) => ({
       schoolId,
