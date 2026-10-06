@@ -10,6 +10,8 @@ const config = [
       "playwright-report/**",
       "test-results/**",
       "next-env.d.ts",
+      // Vendored third-party design skills (see docs/licenses.md)
+      ".claude/**",
     ],
   },
   ...nextCoreWebVitals,
