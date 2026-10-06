@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hasAnyRole, resolveActiveSchool } from "./roles";
+import { hasAnyRole, isPhase1Role, PHASE1_ROLES, resolveActiveSchool } from "./roles";
 
 describe("hasAnyRole", () => {
   it("allows a user holding one of the roles", () => {
@@ -48,5 +48,17 @@ describe("resolveActiveSchool", () => {
 
   it("asks the user to choose between several schools", () => {
     expect(resolveActiveSchool([7, 8], null)).toEqual({ kind: "choose" });
+  });
+});
+
+describe("Phase 1 roles", () => {
+  it("are admin, bursar and teacher only", () => {
+    expect([...PHASE1_ROLES]).toEqual(["admin", "bursar", "teacher"]);
+  });
+
+  it("exclude parent and student", () => {
+    expect(isPhase1Role("parent")).toBe(false);
+    expect(isPhase1Role("student")).toBe(false);
+    expect(isPhase1Role("teacher")).toBe(true);
   });
 });

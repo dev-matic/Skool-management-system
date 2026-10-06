@@ -1,31 +1,21 @@
 "use client";
 
 import { useActionState } from "react";
+import { Alert, Button, Field, Input } from "@/components/ui";
 import { signIn, type SignInState } from "@/server/actions/session";
-
-const inputClass =
-  "mt-1 block w-full rounded border border-slate-300 px-3 py-2 text-base focus:border-blue-600 focus:outline-2 focus:outline-blue-600";
 
 export function LoginForm() {
   const [state, formAction, pending] = useActionState<SignInState, FormData>(signIn, {});
 
   return (
-    <form action={formAction} className="mt-6 space-y-4" noValidate>
+    <form action={formAction} className="flex flex-col gap-4" noValidate>
       {state.error && (
-        <p
-          role="alert"
-          data-testid="form-error"
-          className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
-        >
+        <Alert tone="danger" data-testid="form-error">
           {state.error}
-        </p>
+        </Alert>
       )}
-      <div>
-        <label htmlFor="identifier" className="block text-sm font-medium">
-          Phone number or email
-        </label>
-        <input
-          id="identifier"
+      <Field id="identifier" label="Phone number or email">
+        <Input
           name="identifier"
           type="text"
           autoComplete="username"
@@ -34,30 +24,15 @@ export function LoginForm() {
           placeholder="024 123 4567"
           defaultValue={state.identifier ?? ""}
           key={state.identifier ?? ""}
-          className={inputClass}
         />
-      </div>
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium">
-          Password
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          className={inputClass}
-        />
-      </div>
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-full rounded bg-blue-700 px-4 py-2 font-medium text-white hover:bg-blue-800 focus:outline-2 focus:outline-offset-2 focus:outline-blue-600 disabled:opacity-60"
-      >
+      </Field>
+      <Field id="password" label="Password">
+        <Input name="password" type="password" autoComplete="current-password" required />
+      </Field>
+      <Button type="submit" variant="primary" loading={pending} className="w-full">
         {pending ? "Signing in…" : "Sign in"}
-      </button>
-      <p className="text-xs text-slate-500">
+      </Button>
+      <p className="text-label text-ink-secondary">
         Forgot your password? Ask your school administrator to reset it.
       </p>
     </form>

@@ -12,3 +12,8 @@ test("health check reports a reachable database", async ({ request }) => {
   expect(response.status()).toBe(200);
   expect(await response.json()).toEqual({ status: "ok", database: "ok" });
 });
+
+test("the component reference page is hidden in production builds", async ({ request }) => {
+  const response = await request.get("/dev/components");
+  expect(response.status()).toBe(404);
+});

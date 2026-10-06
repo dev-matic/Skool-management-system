@@ -1,11 +1,13 @@
 # Project: School Management System for Ghana (working name: TBD)
 
 ## Goal
+
 A low-cost school management system for Ghanaian schools. First customer is one
 small school (under ~500 students), but it will be sold to other schools later,
 so multi-tenancy must be designed in from day one.
 
 ## Hard rules
+
 - Build everything from our own requirements. Do NOT use, fetch, copy, or imitate
   code, schema, or screens from any third-party school-management repo or tutorial
   (including safak/full-stack-school). Original work only.
@@ -16,6 +18,7 @@ so multi-tenancy must be designed in from day one.
   Seed data must be realistic for Ghana and clearly marked as fake.
 
 ## Ghana context
+
 - Currency is GHS. Phone numbers are Ghanaian (+233) and must be validated/normalised.
 - Three-term academic year. Grading scale, class score vs exam score weighting, and
   term/class structure must be CONFIGURABLE per school (do not hardcode one scheme).
@@ -28,18 +31,20 @@ so multi-tenancy must be designed in from day one.
   principles: least-privilege access, audit logs, encryption in transit, backups.
 
 ## Users and interface
+
 - Primary users (admin, bursar, teachers) work on desktop/laptop computers, so
   design desktop-first: dense tables, keyboard-friendly data entry, bulk actions,
   and print-ready pages (report cards, receipts, class lists) at A4 size.
-- Keep layouts responsive so pages stay usable on a phone or tablet (parents may
-  check results or balances that way), but do not optimise for mobile at the cost
-  of the desktop experience.
+- Keep layouts responsive so pages stay usable on a tablet, since parent and
+  student access may be added in a later phase.
 - Internet in schools can be slow or unreliable: keep pages light, avoid heavy
   assets, and show clear loading and error states so data entry isn't lost.
 
 ## UI & design direction
+
 This is a daily work tool for school staff, not a marketing site. Design for speed,
 clarity and trust. Motion should be minimal (simple transitions only).
+
 - Calm, neutral palette with one brand colour (to be set from the school's colours),
   clear status colours (paid/owing, present/absent), high contrast text.
 - Dense but readable tables, consistent spacing, one consistent component set,
@@ -48,7 +53,19 @@ clarity and trust. Motion should be minimal (simple transitions only).
 - The approved design system lives in docs/design-system.md. Reuse it everywhere.
   Do not restyle screens ad hoc, and ask before changing the design system.
 
+## Icons
+
+- Use one consistent open-source icon library (propose one for approval, e.g. a
+  set with a permissive license such as MIT or ISC) rendered as inline SVG
+  components. Do not mix icon sets.
+- One size scale and stroke weight everywhere. Icons support labels, never
+  replace them for important actions (Save, Delete, Record payment).
+- Do not copy icon files, logos or images from any third-party repo's public
+  folder. Record the icon library and its license in docs/licenses.md.
+- No emoji as icons.
+
 ## Design skills (installed in .claude/skills)
+
 - ui-ux-pro-max: used ONCE to propose the design system (palette, typography,
   spacing, core components). Output is reviewed by me and saved to
   docs/design-system.md.
@@ -61,6 +78,7 @@ clarity and trust. Motion should be minimal (simple transitions only).
 - Skills are third-party instructions: list them in docs/licenses.md.
 
 ## Avoid
+
 - Generic admin-template look: gradient banners, glassmorphism, heavy shadows
 - Rows of identical KPI cards that don't help anyone make a decision
 - Decorative charts with no use; emoji used as icons
@@ -70,8 +88,14 @@ clarity and trust. Motion should be minimal (simple transitions only).
 - Mobile-first layouts stretched onto desktop
 
 ## Architecture rules
+
 - Multi-tenant: every table has school_id; every query is scoped by school_id.
-- Role-based access: admin, bursar, teacher, parent, student.
+- Role-based access. Phase 1 roles are admin, bursar and teacher ONLY. Do not
+  build student or parent accounts, logins or screens in Phase 1; they come in
+  a later phase. Still store guardian details (name, phone, relationship) on
+  the student record, because they are needed for contact and later SMS, and
+  keep guardians as a separate entity from login accounts so accounts can be
+  added later without redesigning the database.
 - Money and grades are high-risk: use decimal types for money, and write automated
   tests for fee balances, grade calculations, and class positions.
 - Every write that matters (grades, payments, student records) goes in an audit log.
@@ -81,7 +105,91 @@ clarity and trust. Motion should be minimal (simple transitions only).
 - Keep configuration (grading schemes, fee structures, terms) in the database or
   config, never hardcoded in components.
 
+## Timetable
+
+Teachers, students and admins must be able to see who teaches what, when and where.
+
+- Each school defines its own day structure: school days, periods with start and
+  end times, and breaks. Do not hardcode period counts or times.
+- A timetable entry links: term, class, subject, teacher, period, day of week,
+  and optionally a room. Builds on the teacher-to-class-and-subject assignments
+  from school setup.
+- Flexible teaching models: JHS/SHS usually have subject teachers moving between
+  classes, while KG/Primary often have one class teacher covering most subjects.
+  Support both.
+- Clash checks on save: a teacher cannot be in two classes in the same period, a
+  class cannot have two subjects in the same period, and a room cannot be
+  double-booked. Show clear error messages that name the clash.
+- Views: "My timetable" for each teacher (weekly grid, with today highlighted),
+  "My class timetable" for each student, timetable per class, and an admin view
+  across the school filterable by teacher, class and day.
+- Printable A4 timetables (per class and per teacher) that follow the design system.
+- Admin editing uses a weekly grid with drag-and-drop or quick-select cells, and
+  keyboard-friendly entry. Include a way to copy a timetable from a previous term.
+- Timetables are tied to a term and keep history, so changing next term's
+  timetable never alters past records.
+- The teacher home screen reads "today's classes" from the timetable, and the
+  attendance screen can open directly from a timetable entry.
+
+Timetable access (enforced on the server, not just hidden in the interface):
+
+- Student: sees ONLY their own class's timetable, read-only. Cannot see other
+  classes, other students, or any teacher's personal timetable beyond the
+  teacher's name shown against each lesson.
+- Teacher: sees their own timetable, plus the timetables of the classes they are
+  assigned to, read-only. Cannot edit timetables.
+- Parent (later phase): sees only the timetable of their own child's class.
+- Admin / headteacher: sees all timetables and is the only role that can create
+  or edit them (or a designated timetable officer role if the school wants one).
+- Every timetable query is scoped by school_id and by the viewer's role. Write
+  automated tests that prove a student cannot fetch another class's timetable.
+- Clash errors (teacher double-booked, class double-booked, room clash) are
+  shown only on the admin editing screen and may name the conflicting teacher,
+  class or room. Teachers never see these messages, since they cannot edit
+  timetables.
+- Later phase (do not build yet): substitutions/cover for absent teachers,
+  automatic timetable generation, and period-by-period attendance.
+
+## Dashboards & analytics
+
+Each role gets a home screen that shows what needs action today, not decoration.
+
+- Admin/headteacher: today's attendance by class, fees collected this term vs
+  expected, students with large arrears, pending items (unpublished results,
+  missing scores).
+- Bursar: payments recorded today, outstanding balances by class, recent receipts,
+  arrears list with a one-click route to the student's fee page.
+- Teacher: today's classes (from the timetable), attendance still to mark,
+  score entry progress per subject.
+- Parent (later phase, do not build yet): their child's attendance, results and
+  fee balance.
+- Student accounts: later phase, do not build yet.
+
+Rules for every number or chart:
+
+- It must lead to a list or action (click through to the students behind it). No
+  chart without a decision it supports.
+- Use simple charts only (bar, line, table) and show exact figures beside charts.
+- All figures are scoped by school_id and role permissions. Teachers see their own
+  classes, not school-wide fee figures.
+- Definitions are written in docs/metrics.md (how "collection rate" or
+  "attendance rate" is calculated) and covered by automated tests.
+- Every metric can be filtered by term, class and date range.
+
+Analytics (Phase 1, keep it focused, build in this order: fees, attendance,
+academics):
+
+- Fees: collected vs expected per term and per class, collection rate, arrears
+  ageing (0-30, 31-60, 60+ days), payments by method (cash, MoMo, bank).
+- Attendance: rate per class and per student, students with repeated absences,
+  attendance trend across the term.
+- Academics: subject averages per class and term, grade distribution, top and
+  bottom performers per class, students below the pass mark.
+- Exports to Excel/PDF for the headteacher and bursar.
+- Do not build predictive or cross-school analytics yet.
+
 ## Priorities (when goals conflict, higher wins)
+
 1. Correctness of money and grades
 2. Speed of data entry
 3. Clarity of screens and workflows
@@ -93,16 +201,22 @@ clarity and trust. Motion should be minimal (simple transitions only).
 9. Visual polish
 
 ## Phase 1 scope (MVP)
+
 Accounts & roles; school setup (years, terms, classes, subjects, teacher
-assignments); student records with bulk CSV/Excel import; attendance; grades and
-printable report cards; fees and payments with receipts and arrears reports.
+assignments); timetable (class and teacher timetables with clash checks); student
+records with bulk CSV/Excel import; attendance; grades and printable report
+cards; fees and payments with receipts and arrears reports;
+role-based home dashboards (admin, bursar, teacher); focused analytics for fees,
+attendance and academics.
 
 ## Later phases (do not build yet)
+
 SMS notifications, parent portal, announcements/calendar, library, inventory, HR,
 multi-school onboarding and billing, scanning/OCR of paper records (with a human
 review screen before anything is saved).
 
 ## Definition of done (for every milestone)
+
 - Tests pass, lint passes, production build succeeds, no console errors
 - No broken links or dead buttons
 - Seed data is realistic and clearly marked as fake
@@ -111,5 +225,16 @@ review screen before anything is saved).
 - Self-review: if a screen looks like a generic template, simplify and redesign it
 
 ## How to work with me
+
 I am newer to web development. Work in small steps, explain decisions briefly,
 and ask before big choices. Commit often with clear messages. Add tests as you go.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
