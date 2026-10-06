@@ -101,6 +101,42 @@ clarity and trust. Motion should be minimal (simple transitions only).
 - Keep configuration (grading schemes, fee structures, terms) in the database or
   config, never hardcoded in components.
 
+## Dashboards & analytics
+
+Each role gets a home screen that shows what needs action today, not decoration.
+
+- Admin/headteacher: today's attendance by class, fees collected this term vs
+  expected, students with large arrears, pending items (unpublished results,
+  missing scores).
+- Bursar: payments recorded today, outstanding balances by class, recent receipts,
+  arrears list with a one-click route to the student's fee page.
+- Teacher: today's classes, attendance still to mark, score entry progress per
+  subject.
+- Parent (later phase): their child's attendance, results and fee balance.
+
+Rules for every number or chart:
+
+- It must lead to a list or action (click through to the students behind it). No
+  chart without a decision it supports.
+- Use simple charts only (bar, line, table) and show exact figures beside charts.
+- All figures are scoped by school_id and role permissions. Teachers see their own
+  classes, not school-wide fee figures.
+- Definitions are written in docs/metrics.md (how "collection rate" or
+  "attendance rate" is calculated) and covered by automated tests.
+- Every metric can be filtered by term, class and date range.
+
+Analytics (Phase 1, keep it focused, build in this order: fees, attendance,
+academics):
+
+- Fees: collected vs expected per term and per class, collection rate, arrears
+  ageing (0-30, 31-60, 60+ days), payments by method (cash, MoMo, bank).
+- Attendance: rate per class and per student, students with repeated absences,
+  attendance trend across the term.
+- Academics: subject averages per class and term, grade distribution, top and
+  bottom performers per class, students below the pass mark.
+- Exports to Excel/PDF for the headteacher and bursar.
+- Do not build predictive or cross-school analytics yet.
+
 ## Priorities (when goals conflict, higher wins)
 
 1. Correctness of money and grades
@@ -117,7 +153,9 @@ clarity and trust. Motion should be minimal (simple transitions only).
 
 Accounts & roles; school setup (years, terms, classes, subjects, teacher
 assignments); student records with bulk CSV/Excel import; attendance; grades and
-printable report cards; fees and payments with receipts and arrears reports.
+printable report cards; fees and payments with receipts and arrears reports;
+role-based home dashboards (admin, bursar, teacher); focused analytics for fees,
+attendance and academics.
 
 ## Later phases (do not build yet)
 
