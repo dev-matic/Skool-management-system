@@ -25,7 +25,9 @@ export function buttonClass(variant: ButtonVariant = "secondary", size: ButtonSi
   return cx(
     "inline-flex shrink-0 items-center justify-center rounded-control border text-base whitespace-nowrap",
     "transition-colors duration-150 pointer-coarse:h-10",
-    "disabled:cursor-not-allowed disabled:border-divider disabled:bg-subtle disabled:text-ink-disabled",
+    // Disabled turns grey; busy (loading) keeps its colour so "saving" never looks "not allowed".
+    "disabled:not-aria-busy:cursor-not-allowed disabled:not-aria-busy:border-divider disabled:not-aria-busy:bg-subtle disabled:not-aria-busy:text-ink-disabled",
+    "aria-busy:cursor-wait",
     VARIANTS[variant],
     SIZES[size],
   );

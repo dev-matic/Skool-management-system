@@ -83,3 +83,13 @@ test("signing out ends the session", async ({ page }) => {
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/login$/);
 });
+
+test("keyboard users can skip past the menu to the page content", async ({ page }) => {
+  await signIn(page, "024 100 0001");
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.keyboard.press("Tab");
+  const skip = page.getByRole("link", { name: "Skip to main content" });
+  await expect(skip).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("main#main")).toBeFocused();
+});

@@ -24,7 +24,7 @@ export default async function DashboardPage() {
       <Panel title="Getting started" className="max-w-2xl">
         <p>
           School setup, students, attendance, scores and fees appear in the menu as they are built.
-          Areas marked <strong className="font-semibold">Soon</strong> are not available yet.
+          Areas marked (soon) are not available yet.
         </p>
       </Panel>
     </div>

@@ -15,7 +15,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
-import { Badge, Icon, cx } from "@/components/ui";
+import { Icon, cx } from "@/components/ui";
 import type { NavIcon, NavItem } from "./nav";
 
 const ICONS: Record<NavIcon, LucideIcon> = {
@@ -46,6 +46,12 @@ export function AppFrame({
 
   return (
     <div className="min-h-screen">
+      <a
+        href="#main"
+        className="no-print sr-only rounded-control bg-surface px-3 py-2 font-semibold text-ink focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:shadow-overlay"
+      >
+        Skip to main content
+      </a>
       <header className="no-print sticky top-0 z-20 flex h-12 items-center gap-3 border-b border-brand-edge bg-brand px-3 text-ink lg:px-4">
         <button
           type="button"
@@ -100,8 +106,10 @@ export function AppFrame({
                       title={`Available from milestone ${item.comingIn}`}
                       className="flex min-h-9 items-center gap-2.5 rounded-control px-2.5 py-1.5 leading-snug text-ink-secondary pointer-coarse:min-h-11"
                     >
-                      {label}
-                      <Badge>Soon</Badge>
+                      <Icon icon={ICONS[item.icon]} size="md" />
+                      <span className="flex-1">
+                        {item.label} <span className="text-caption">(soon)</span>
+                      </span>
                     </span>
                   )}
                 </li>
@@ -110,7 +118,11 @@ export function AppFrame({
           </ul>
         </nav>
 
-        <main className="min-w-0 flex-1 px-4 py-5 lg:px-6">
+        <main
+          id="main"
+          tabIndex={-1}
+          className="min-w-0 flex-1 px-4 py-5 focus:outline-none lg:px-6"
+        >
           <div className="mx-auto max-w-[90rem]">{children}</div>
         </main>
       </div>

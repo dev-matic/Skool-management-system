@@ -71,6 +71,17 @@
 
 :root {
   color-scheme: light;
+  accent-color: var(--color-brand-strong);
+  caret-color: var(--color-ink);
+}
+
+::selection {
+  background: var(--color-brand-tint);
+  color: var(--color-ink);
+}
+
+a {
+  text-underline-offset: 2px;
 }
 
 /* "Larger text" preference: 14px base becomes 16px. */
