@@ -1,56 +1,115 @@
 # Project: School Management System for Ghana (working name: TBD)
 
-Working rules for anyone (human or AI) contributing to this repo.
-Full requirements: see `docs/requirements.md`.
-
-## Tech stack
-
-Next.js (App Router) + React + TypeScript, PostgreSQL + Drizzle ORM, Tailwind,
-Vitest (unit/integration), Playwright (e2e), pnpm. See README for commands and
-`docs/licenses.md` for version pins and their reasons.
-
-- Money and scores: use `src/domain/money.ts` (decimal.js). Never `Number()` or
-  `parseFloat` on money/scores; Postgres `numeric` arrives as a string.
-- Pure business logic lives in `src/domain/` with exhaustive unit tests.
-- Before committing: `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test`.
-- Every protected page/server action: `getTenantContext()` or `requireRole(...)`
-  first, then DB work inside `withTenant(ctx, tx => ...)`; important writes call
-  `recordAudit(tx, ...)` in the same transaction. Never rely on layouts for auth.
-- New school-owned tables: grant only needed privileges to `skool_app`, enable
-  RLS with a `school_id = app_current_school_id()` policy, and extend the
-  isolation tests. See `docs/security.md`.
+## Goal
+A low-cost school management system for Ghanaian schools. First customer is one
+small school (under ~500 students), but it will be sold to other schools later,
+so multi-tenancy must be designed in from day one.
 
 ## Hard rules
+- Build everything from our own requirements. Do NOT use, fetch, copy, or imitate
+  code, schema, or screens from any third-party school-management repo or tutorial
+  (including safak/full-stack-school). Original work only.
+- Only use libraries with licenses that allow commercial use. Keep a list of every
+  dependency and its license in docs/licenses.md (include installed skills).
+- Never commit secrets. Use environment variables and a .env.example.
+- Never invent real-looking data (school names, fee amounts, scores, phone numbers).
+  Seed data must be realistic for Ghana and clearly marked as fake.
 
-- Original work only. Do NOT use, fetch, copy, or imitate code, schema, or screens
-  from any third-party school-management repo or tutorial (including
-  safak/full-stack-school).
-- Only use dependencies whose licenses allow commercial use. Record every
-  dependency and its license in `docs/licenses.md` when adding it.
-- Never commit secrets. Use environment variables; document them in `.env.example`.
+## Ghana context
+- Currency is GHS. Phone numbers are Ghanaian (+233) and must be validated/normalised.
+- Three-term academic year. Grading scale, class score vs exam score weighting, and
+  term/class structure must be CONFIGURABLE per school (do not hardcode one scheme).
+- Levels include KG, Primary, JHS and possibly SHS; keep the class structure flexible.
+- Fees are mostly paid by mobile money (MTN MoMo, Telecel Cash, AirtelTigo Money),
+  plus cash and bank. Design payments around recording and reconciling these.
+- Parents are reached mainly by SMS/WhatsApp. Use a provider abstraction so the SMS
+  provider can be swapped.
+- Student data is personal data of children. Follow Ghana's Data Protection Act
+  principles: least-privilege access, audit logs, encryption in transit, backups.
+
+## Users and interface
+- Primary users (admin, bursar, teachers) work on desktop/laptop computers, so
+  design desktop-first: dense tables, keyboard-friendly data entry, bulk actions,
+  and print-ready pages (report cards, receipts, class lists) at A4 size.
+- Keep layouts responsive so pages stay usable on a phone or tablet (parents may
+  check results or balances that way), but do not optimise for mobile at the cost
+  of the desktop experience.
+- Internet in schools can be slow or unreliable: keep pages light, avoid heavy
+  assets, and show clear loading and error states so data entry isn't lost.
+
+## UI & design direction
+This is a daily work tool for school staff, not a marketing site. Design for speed,
+clarity and trust. Motion should be minimal (simple transitions only).
+- Calm, neutral palette with one brand colour (to be set from the school's colours),
+  clear status colours (paid/owing, present/absent), high contrast text.
+- Dense but readable tables, consistent spacing, one consistent component set,
+  clear empty/loading/error states, and confirmation before destructive actions.
+- Dates as dd/mm/yyyy, currency as GHS, Ghanaian names and realistic data in demos.
+- The approved design system lives in docs/design-system.md. Reuse it everywhere.
+  Do not restyle screens ad hoc, and ask before changing the design system.
+
+## Design skills (installed in .claude/skills)
+- ui-ux-pro-max: used ONCE to propose the design system (palette, typography,
+  spacing, core components). Output is reviewed by me and saved to
+  docs/design-system.md.
+- impeccable: used to critique, audit and polish screens against
+  docs/design-system.md. Use `/impeccable critique`, `audit` and `polish`.
+- If a design skill's advice conflicts with this file (density, speed of data
+  entry, print output, minimal motion), THIS FILE WINS. Reject expressive or
+  trendy styles (glassmorphism, gradient banners, decorative animation) and
+  marketing-site patterns.
+- Skills are third-party instructions: list them in docs/licenses.md.
+
+## Avoid
+- Generic admin-template look: gradient banners, glassmorphism, heavy shadows
+- Rows of identical KPI cards that don't help anyone make a decision
+- Decorative charts with no use; emoji used as icons
+- Huge padding that reduces rows per screen
+- Low-contrast grey text; tiny click targets
+- Placeholder "John Doe / Lorem ipsum" data; US-style dates and dollar signs
+- Mobile-first layouts stretched onto desktop
 
 ## Architecture rules
+- Multi-tenant: every table has school_id; every query is scoped by school_id.
+- Role-based access: admin, bursar, teacher, parent, student.
+- Money and grades are high-risk: use decimal types for money, and write automated
+  tests for fee balances, grade calculations, and class positions.
+- Every write that matters (grades, payments, student records) goes in an audit log.
+- Data entry is the main workload (scores, attendance, payments), so prioritise
+  fast forms: tab/enter navigation, spreadsheet-style grids for entering scores
+  and attendance for a whole class, and autosave or draft protection.
+- Keep configuration (grading schemes, fee structures, terms) in the database or
+  config, never hardcoded in components.
 
-- Multi-tenant from day one: every tenant-owned table has `school_id`; every
-  query is scoped by `school_id`.
-- Roles: admin, bursar, teacher, parent, student. Least-privilege access.
-- Money uses decimal types (never floats). Currency is GHS.
-- Automated tests are required for fee balances, grade calculations and class
-  positions.
-- Every important write (grades, payments, student records) is audit-logged.
-- Grading scale, class/exam weighting, terms and class structure are configurable
-  per school — never hardcode one scheme.
-- Ghana phone numbers (+233) are validated and normalised.
-- SMS goes through a provider abstraction (not built in Phase 1).
+## Priorities (when goals conflict, higher wins)
+1. Correctness of money and grades
+2. Speed of data entry
+3. Clarity of screens and workflows
+4. Print output (report cards, receipts)
+5. Security and privacy of student data
+6. Consistency across the app
+7. Accessibility
+8. Performance on slow connections
+9. Visual polish
 
-## UI rules
+## Phase 1 scope (MVP)
+Accounts & roles; school setup (years, terms, classes, subjects, teacher
+assignments); student records with bulk CSV/Excel import; attendance; grades and
+printable report cards; fees and payments with receipts and arrears reports.
 
-- Desktop-first (dense tables, keyboard-friendly, bulk actions, A4 print pages),
-  but responsive enough for phones/tablets.
-- Light pages; clear loading/error states; never lose data entry (autosave/drafts).
-- Spreadsheet-style grids for whole-class score and attendance entry.
+## Later phases (do not build yet)
+SMS notifications, parent portal, announcements/calendar, library, inventory, HR,
+multi-school onboarding and billing, scanning/OCR of paper records (with a human
+review screen before anything is saved).
 
-## Working style
+## Definition of done (for every milestone)
+- Tests pass, lint passes, production build succeeds, no console errors
+- No broken links or dead buttons
+- Seed data is realistic and clearly marked as fake
+- Report card and receipt checked in A4 print preview
+- Screen reviewed with /impeccable critique; fixes applied
+- Self-review: if a screen looks like a generic template, simplify and redesign it
 
-- Small steps, brief explanations, ask before big choices.
-- Commit often with clear messages. Add tests as you go.
+## How to work with me
+I am newer to web development. Work in small steps, explain decisions briefly,
+and ask before big choices. Commit often with clear messages. Add tests as you go.
