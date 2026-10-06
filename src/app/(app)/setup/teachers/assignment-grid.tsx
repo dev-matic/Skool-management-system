@@ -4,6 +4,7 @@ import { Save, UserCheck } from "lucide-react";
 import { useActionState, useEffect, useId, useState } from "react";
 import { Alert, Button, Icon, StatusChip, cx } from "@/components/ui";
 import { saveAssignmentsAction, type FormState } from "@/server/actions/assignments";
+import { STAGE_LABELS, STAGES } from "@/domain/levels";
 import type { AssignmentGrid } from "@/server/assignments";
 
 interface Props {
@@ -84,110 +85,151 @@ export function AssignmentGridForm({ yearId, grid, teachers }: Props) {
       {state.errors?.form && <Alert tone="danger">{state.errors.form}</Alert>}
       {state.ok && state.message && !dirty && <Alert tone="success">{state.message}</Alert>}
       {saveBar}
-      <div className="relative overflow-x-auto rounded-panel border border-divider bg-surface">
-        <table className="border-collapse text-base">
-          <caption className="sr-only">Choose a teacher for each subject a class takes</caption>
-          <thead className="bg-subtle">
-            <tr>
-              <th
-                scope="col"
-                className="sticky left-0 z-10 border-b border-divider bg-subtle px-3 text-left text-label font-semibold text-ink-secondary"
-              >
-                Class
-              </th>
-              {grid.subjects.map((s) => (
-                <th
-                  key={s.id}
-                  scope="col"
-                  title={s.name}
-                  className="w-36 border-b border-l border-divider px-2 py-1.5 text-left align-bottom text-label leading-tight font-semibold text-ink-secondary"
-                >
-                  {s.shortName ?? s.name}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {grid.classes.map((c) => {
-              const rowKeys = grid.subjects
-                .map((s) => `${c.id}:${s.id}`)
-                .filter((k) => k in grid.cells);
-              return (
-                <tr key={c.id}>
-                  <th
-                    scope="row"
-                    className="sticky left-0 z-10 border-b border-divider bg-surface px-3 py-1 text-left font-medium whitespace-nowrap"
-                  >
-                    <span className="block">{c.name}</span>
-                    {c.classTeacherId && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setAssigned((prev) => ({
-                            ...prev,
-                            ...Object.fromEntries(rowKeys.map((k) => [k, c.classTeacherId!])),
-                          }))
-                        }
-                        className="mt-0.5 inline-flex items-center gap-1 rounded-control text-caption font-semibold text-brand-strong hover:underline"
-                        aria-label={`${c.classTeacherName} takes all ${c.name} subjects`}
+      {STAGES.filter((stage) => grid.classes.some((c) => c.stage === stage)).map((stage) => {
+        const classes = grid.classes.filter((c) => c.stage === stage);
+        // Only subjects this stage's classes take, so the table has few dashes.
+        const subjects = grid.subjects.filter((s) =>
+          classes.some((c) => `${c.id}:${s.id}` in grid.cells),
+        );
+        const stageKeys = classes.flatMap((c) =>
+          subjects.map((s) => `${c.id}:${s.id}`).filter((k) => k in grid.cells),
+        );
+        const stageUnassigned = stageKeys.filter((k) => !assigned[k]).length;
+        const withClassTeacher = classes.filter((c) => c.classTeacherId);
+        const takeAll = (list: typeof classes) =>
+          setAssigned((prev) => {
+            const next = { ...prev };
+            for (const c of list) {
+              for (const s of subjects) {
+                const k = `${c.id}:${s.id}`;
+                if (k in grid.cells && c.classTeacherId) next[k] = c.classTeacherId;
+              }
+            }
+            return next;
+          });
+        return (
+          <section key={stage} aria-labelledby={`stage-${stage}`} className="flex flex-col gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 id={`stage-${stage}`} className="text-heading font-semibold">
+                {STAGE_LABELS[stage]}{" "}
+                <span className="text-label font-normal text-ink-secondary">
+                  {stageUnassigned === 0 ? "all assigned" : `${stageUnassigned} without a teacher`}
+                </span>
+              </h2>
+              {subjects.length > 0 && withClassTeacher.length > 0 && (
+                <Button size="compact" icon={UserCheck} onClick={() => takeAll(withClassTeacher)}>
+                  Class teachers take all {STAGE_LABELS[stage]} subjects
+                </Button>
+              )}
+            </div>
+            {subjects.length === 0 ? (
+              <p className="text-ink-secondary">
+                These classes do not take any subjects yet. Tick them on the Subjects page.
+              </p>
+            ) : (
+              <div className="relative overflow-x-auto rounded-panel border border-divider bg-surface">
+                <table className="border-collapse text-base">
+                  <caption className="sr-only">
+                    {STAGE_LABELS[stage]}: choose a teacher for each subject a class takes
+                  </caption>
+                  <thead className="bg-subtle">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="sticky left-0 z-10 border-b border-divider bg-subtle px-3 text-left text-label font-semibold text-ink-secondary"
                       >
-                        <Icon icon={UserCheck} />
-                        Class teacher takes all
-                      </button>
-                    )}
-                  </th>
-                  {grid.subjects.map((s) => {
-                    const k = `${c.id}:${s.id}`;
-                    if (!(k in grid.cells)) {
-                      return (
-                        <td
+                        Class
+                      </th>
+                      {subjects.map((s) => (
+                        <th
                           key={s.id}
-                          className="border-b border-l border-divider bg-page px-2 text-center text-ink-secondary"
+                          scope="col"
+                          title={s.name}
+                          className="w-40 border-b border-l border-divider px-2 py-1.5 text-left align-bottom text-label leading-tight font-semibold text-ink-secondary"
                         >
-                          <span aria-hidden="true">—</span>
-                          <span className="sr-only">
-                            {c.name} does not take {s.name}
+                          {s.shortName ?? s.name}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {classes.map((c) => (
+                      <tr key={c.id}>
+                        <th
+                          scope="row"
+                          className="sticky left-0 z-10 border-b border-divider bg-surface px-3 py-1 text-left font-medium whitespace-nowrap"
+                        >
+                          <span className="flex items-center justify-between gap-2">
+                            {c.name}
+                            {c.classTeacherId && (
+                              <button
+                                type="button"
+                                onClick={() => takeAll([c])}
+                                title={`${c.classTeacherName} takes all ${c.name} subjects`}
+                                aria-label={`${c.classTeacherName} takes all ${c.name} subjects`}
+                                className="inline-flex size-7 items-center justify-center rounded-control text-brand-strong hover:bg-subtle pointer-coarse:size-10"
+                              >
+                                <Icon icon={UserCheck} />
+                              </button>
+                            )}
                           </span>
-                        </td>
-                      );
-                    }
-                    const value = assigned[k] ?? "";
-                    return (
-                      <td
-                        key={s.id}
-                        className={cx(
-                          "border-b border-l border-divider px-1 py-1",
-                          !value && "bg-warning-bg",
-                        )}
-                      >
-                        <select
-                          value={value}
-                          onChange={(e) => {
-                            const teacherId = e.target.value;
-                            setAssigned((prev) => ({ ...prev, [k]: teacherId }));
-                          }}
-                          aria-label={`${c.name} ${s.name} teacher`}
-                          className="h-7 w-36 rounded-control border border-input bg-surface px-1 text-label text-ink pointer-coarse:h-10"
-                        >
-                          <option value="">No teacher</option>
-                          {teachers.map((t) => (
-                            <option key={t.userId} value={t.userId}>
-                              {t.name}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                        </th>
+                        {subjects.map((s) => {
+                          const k = `${c.id}:${s.id}`;
+                          if (!(k in grid.cells)) {
+                            return (
+                              <td
+                                key={s.id}
+                                className="border-b border-l border-divider bg-page px-2 text-center text-ink-secondary"
+                              >
+                                <span aria-hidden="true">—</span>
+                                <span className="sr-only">
+                                  {c.name} does not take {s.name}
+                                </span>
+                              </td>
+                            );
+                          }
+                          const value = assigned[k] ?? "";
+                          return (
+                            <td
+                              key={s.id}
+                              className={cx(
+                                "border-b border-l border-divider px-1 py-1",
+                                !value && "bg-warning-bg",
+                              )}
+                            >
+                              <select
+                                value={value}
+                                onChange={(e) => {
+                                  const teacherId = e.target.value;
+                                  setAssigned((prev) => ({ ...prev, [k]: teacherId }));
+                                }}
+                                aria-label={`${c.name} ${s.name} teacher`}
+                                className="h-7 w-40 rounded-control border border-input bg-surface px-2 text-label text-ink pointer-coarse:h-10"
+                              >
+                                <option value="">No teacher</option>
+                                {teachers.map((t) => (
+                                  <option key={t.userId} value={t.userId}>
+                                    {t.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        );
+      })}
       <p className="text-label text-ink-secondary">
-        Shaded cells have no teacher yet. A dash means the class does not take that subject (change
-        this on the Subjects page).
+        Shaded cells have no teacher yet. The person icon gives every subject in that class to its
+        class teacher. A dash means the class does not take that subject (change this on the
+        Subjects page).
       </p>
       {saveBar}
     </div>

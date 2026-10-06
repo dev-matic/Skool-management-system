@@ -26,7 +26,8 @@ test("admin sees this year's terms with the current one marked", async ({ page }
 });
 
 test("adding a year explains bad dates, then saves", async ({ page }) => {
-  const start = 2100 + Math.floor(Math.random() * 800);
+  // Far-future FAKE year; a wide range makes clashes with earlier runs unlikely.
+  const start = 2100 + Math.floor(Math.random() * 7800);
   await signIn(page, "024 100 0001");
   await page.goto("/setup/years/new");
 

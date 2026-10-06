@@ -46,6 +46,11 @@ test("the class teacher can take every subject in one click", async ({ page }) =
   await signIn(page, "024 100 0001");
   await page.goto("/setup/teachers");
   const grid = page.getByRole("group", { name: "Teachers by class and subject" });
+  // One table per stage, each with a stage-wide shortcut.
+  await expect(grid.getByRole("heading", { name: /^KG/ })).toBeVisible();
+  await expect(
+    grid.getByRole("button", { name: "Class teachers take all JHS subjects" }),
+  ).toBeVisible();
   await grid.getByRole("button", { name: "Kwabena Frimpong takes all JHS 1 subjects" }).click();
   for (const subject of ["Mathematics", "French", "Career Technology"]) {
     await expect(
