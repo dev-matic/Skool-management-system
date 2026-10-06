@@ -4,6 +4,7 @@
   "private": true,
   "description": "Low-cost, multi-tenant school management system for Ghanaian schools",
   "license": "UNLICENSED",
+  "type": "module",
   "packageManager": "pnpm@10.28.0",
   "engines": {
     "node": ">=22"
@@ -21,11 +22,16 @@
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx --env-file-if-exists=.env.local src/db/seed.ts",
+    "test:unit": "vitest run --project unit",
+    "test:integration": "vitest run --project integration"
   },
   "dependencies": {
+    "better-auth": "1.7.7",
     "decimal.js": "^10.6.0",
     "drizzle-orm": "^0.45.3",
+    "libphonenumber-js": "^1.13.14",
     "next": "16.3.8",
     "pg": "^8.23.1",
     "react": "^19.3.0",
@@ -45,6 +51,7 @@
     "eslint-config-next": "16.3.8",
     "prettier": "^3.9.9",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "vitest": "^5.0.3"
   },

@@ -5,6 +5,7 @@ Low-cost, multi-tenant school management for Ghanaian schools.
 - Requirements: [docs/requirements.md](docs/requirements.md)
 - Contributor rules: [CLAUDE.md](CLAUDE.md)
 - Dependency licenses: [docs/licenses.md](docs/licenses.md)
+- Security model (roles, school separation, audit log): [docs/security.md](docs/security.md)
 
 ## Tech stack
 
@@ -19,11 +20,27 @@ You need **Node.js 22+**, **pnpm 10** (`corepack enable`) and **Docker**
 ```bash
 pnpm install                 # install dependencies
 cp .env.example .env.local   # local settings (never commit .env files)
-docker compose up -d db      # start PostgreSQL on localhost:5432
+                             # then set BETTER_AUTH_SECRET: openssl rand -base64 32
+docker compose up -d db      # start PostgreSQL (creates app role + test database)
+pnpm db:migrate              # create tables
+pnpm db:seed                 # demo schools and users
 pnpm dev                     # start the app at http://localhost:3000
 ```
 
-Visit http://localhost:3000/api/health. It should report `"database": "ok"`.
+Sign in with any demo account; the password is `demo-password-2026`:
+
+| Sign in with                                 | Name          | Role(s)                                          |
+| -------------------------------------------- | ------------- | ------------------------------------------------ |
+| `024 100 0001` or `admin@demo-school.test`   | Akosua Mensah | Admin, Demo Basic School                         |
+| `024 100 0002` (phone only)                  | Kojo Asante   | Bursar                                           |
+| `024 100 0003` or `teacher@demo-school.test` | Efua Owusu    | Teacher                                          |
+| `024 100 0004`                               | Yaw Boateng   | Parent                                           |
+| `student@demo-school.test`                   | Abena Boateng | Student                                          |
+| `024 100 0006`                               | Kwame Darko   | Admin + Teacher, and Admin at Second Demo School |
+| `024 100 0007`                               | Esi Quaye     | Admin, Second Demo School only                   |
+
+> If your Docker database was created before M1, recreate it so the app role
+> and test database exist: `docker compose down -v && docker compose up -d db`.
 
 ## Common commands
 
@@ -47,5 +64,6 @@ src/domain/     pure business logic (money, grading, balances) — heavily teste
 src/server/     server-only code: auth, tenant scoping, permissions, audit
 src/components/ shared UI components
 src/styles/     global and print (A4) styles
+tests/integration/  tests against a real Postgres (school separation, audit log)
 tests/e2e/      Playwright browser tests
 ```

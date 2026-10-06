@@ -1,12 +1,19 @@
 import { z } from "zod";
 
+const postgresUrl = z
+  .string()
+  .min(1)
+  .refine((v) => v.startsWith("postgres://") || v.startsWith("postgresql://"), {
+    message: "must be a postgres:// connection string",
+  });
+
 const serverEnvSchema = z.object({
-  DATABASE_URL: z
-    .string()
-    .min(1, "DATABASE_URL is required")
-    .refine((v) => v.startsWith("postgres://") || v.startsWith("postgresql://"), {
-      message: "DATABASE_URL must be a postgres:// connection string",
-    }),
+  // Restricted app role (row-level security applies). Used by the running app.
+  DATABASE_URL: postgresUrl,
+  // Secret used to sign session cookies. Generate with: openssl rand -base64 32
+  BETTER_AUTH_SECRET: z.string().min(32, "must be at least 32 characters"),
+  // Public base URL of the app, e.g. https://school.example.com
+  BETTER_AUTH_URL: z.url(),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 });
 
@@ -16,7 +23,7 @@ let cached: ServerEnv | undefined;
 
 /**
  * Reads and validates server environment variables on first use.
- * Lazy so that `next build` does not need a database URL.
+ * Lazy so that `next build` does not need secrets or a database.
  */
 export function serverEnv(): ServerEnv {
   if (!cached) {

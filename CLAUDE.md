@@ -13,6 +13,12 @@ Vitest (unit/integration), Playwright (e2e), pnpm. See README for commands and
   `parseFloat` on money/scores; Postgres `numeric` arrives as a string.
 - Pure business logic lives in `src/domain/` with exhaustive unit tests.
 - Before committing: `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test`.
+- Every protected page/server action: `getTenantContext()` or `requireRole(...)`
+  first, then DB work inside `withTenant(ctx, tx => ...)`; important writes call
+  `recordAudit(tx, ...)` in the same transaction. Never rely on layouts for auth.
+- New school-owned tables: grant only needed privileges to `skool_app`, enable
+  RLS with a `school_id = app_current_school_id()` policy, and extend the
+  isolation tests. See `docs/security.md`.
 
 ## Hard rules
 

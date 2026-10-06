@@ -11,25 +11,31 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     services:
       postgres:
         image: postgres:16-alpine
         env:
           POSTGRES_USER: skool
-          POSTGRES_PASSWORD: skool_ci_password
-          POSTGRES_DB: skool_test
+          POSTGRES_PASSWORD: skool_dev_password
+          POSTGRES_DB: skool_dev
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U skool -d skool_test"
+          --health-cmd "pg_isready -U skool -d skool_dev"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
 
+    # Throwaway CI-only values; real secrets never live in the repository.
     env:
-      DATABASE_URL: postgres://skool:skool_ci_password@localhost:5432/skool_test
+      DATABASE_URL: postgres://skool_app:skool_app_dev_password@localhost:5432/skool_dev
+      DATABASE_ADMIN_URL: postgres://skool:skool_dev_password@localhost:5432/skool_dev
+      TEST_DATABASE_URL: postgres://skool_app:skool_app_dev_password@localhost:5432/skool_test
+      TEST_DATABASE_ADMIN_URL: postgres://skool:skool_dev_password@localhost:5432/skool_test
+      BETTER_AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
+      BETTER_AUTH_URL: http://localhost:3100
 
     steps:
       - uses: actions/checkout@v4
@@ -44,6 +50,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Create app database role and test database
+        run: psql "$DATABASE_ADMIN_URL" -v ON_ERROR_STOP=1 -f docker/initdb/01-roles.sql
+
       - name: Check formatting
         run: pnpm format:check
 
@@ -53,8 +62,11 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Unit tests
+      - name: Unit and integration tests
         run: pnpm test
+
+      - name: Migrate and seed demo data
+        run: pnpm db:migrate && pnpm db:seed
 
       - name: Build
         run: pnpm build
