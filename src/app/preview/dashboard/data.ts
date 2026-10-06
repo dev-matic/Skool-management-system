@@ -308,3 +308,35 @@ export function ageBucket(daysOverdue: number): AgeBucket {
 export function percentOf(part: Money, whole: Money): number {
   return whole.isZero() ? 0 : part.div(whole).times(100).toDecimalPlaces(1).toNumber();
 }
+
+// ---------------------------------------------------------------------------
+// Staff (people with logins; Phase 1 roles are admin, bursar and teacher)
+
+export const STAFF: { name: string; roles: ("admin" | "bursar" | "teacher")[]; addedOn: string }[] =
+  [
+    { name: "Akosua Mensah", roles: ["admin"], addedOn: "2026-08-03" },
+    { name: "Kwame Darko", roles: ["admin", "teacher"], addedOn: "2026-08-03" },
+    { name: "Kojo Asante", roles: ["bursar"], addedOn: "2026-08-10" },
+    ...CLASSES.filter((c) => c.classTeacher !== "Kwame Darko").map((c) => ({
+      name: c.classTeacher,
+      roles: ["teacher" as const],
+      addedOn: "2026-08-17",
+    })),
+    { name: "Senyo Dogbe", roles: ["teacher"], addedOn: "2026-09-22" },
+    { name: "Gifty Ampofo", roles: ["teacher"], addedOn: "2026-10-01" },
+  ];
+
+/** JHS subjects that no teacher has been assigned to yet. */
+export const UNASSIGNED_SUBJECTS = ["JHS 2B French", "JHS 3 Computing"];
+
+export function staffCounts(staff: typeof STAFF) {
+  const count = (role: "admin" | "bursar" | "teacher") =>
+    staff.filter((s) => s.roles.includes(role)).length;
+  return {
+    people: staff.length,
+    teachers: count("teacher"),
+    bursars: count("bursar"),
+    admins: count("admin"),
+    multiRole: staff.filter((s) => s.roles.length > 1).length,
+  };
+}

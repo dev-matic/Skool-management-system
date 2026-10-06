@@ -3,6 +3,8 @@ import {
   CalendarClock,
   ChartColumn,
   ClipboardList,
+  History,
+  IdCard,
   LayoutDashboard,
   School,
   Search,
@@ -17,12 +19,14 @@ import { PREVIEW_SCHOOL, PREVIEW_TERM } from "./data";
 const MENU: { label: string; icon: LucideIcon; current?: boolean }[] = [
   { label: "Dashboard", icon: LayoutDashboard, current: true },
   { label: "Students", icon: Users },
+  { label: "Staff", icon: IdCard },
   { label: "Attendance", icon: CalendarCheck },
   { label: "Timetable", icon: CalendarClock },
   { label: "Scores & reports", icon: ClipboardList },
   { label: "Fees & payments", icon: Wallet },
   { label: "Analytics", icon: ChartColumn },
   { label: "School setup", icon: School },
+  { label: "Audit log", icon: History },
 ];
 
 function SchoolMark() {

@@ -13,6 +13,12 @@ import {
   TriangleAlert,
   Wallet,
   type LucideIcon,
+  CalendarClock,
+  FileCheck,
+  GraduationCap,
+  Receipt,
+  UserCog,
+  UserPlus,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Icon, cx } from "@/components/ui";
@@ -27,6 +33,9 @@ import {
   PENDING,
   PREVIEW_TODAY,
   RECEIPTS_TODAY,
+  STAFF,
+  UNASSIGNED_SUBJECTS,
+  staffCounts,
   ageBucket,
   attendanceSummary,
   expectedFees,
@@ -46,6 +55,16 @@ const TINT: Record<Tint, { bg: string; ink: string }> = {
   lilac: { bg: "bg-(--pv-lilac)", ink: "text-(--pv-lilac-ink)" },
 };
 const TINT_ORDER: Tint[] = ["sky", "mint", "peach", "lilac"];
+
+const QUICK_ACTIONS: { label: string; icon: LucideIcon }[] = [
+  { label: "Add staff", icon: UserPlus },
+  { label: "Add student", icon: GraduationCap },
+  { label: "Record payment", icon: Receipt },
+  { label: "Edit timetable", icon: CalendarClock },
+  { label: "Publish results", icon: FileCheck },
+];
+
+const ROLE_NAMES = { admin: "Admin", bursar: "Bursar", teacher: "Teacher" } as const;
 
 const CARD =
   "rounded-[0.875rem] border border-(--pv-line) bg-surface shadow-[0_1px_2px_rgb(15_23_42/0.04)]";
@@ -277,6 +296,8 @@ export function PreviewDashboard() {
     PAYMENTS_BY_METHOD.filter((p) => p.group === "momo").map((p) => new Money(p.amount)),
   );
   const todayTotal = sumMoney(RECEIPTS_TODAY.map((r) => new Money(r.amount)));
+  const staff = staffCounts(STAFF);
+  const recentStaff = [...STAFF].sort((a, b) => b.addedOn.localeCompare(a.addedOn)).slice(0, 3);
   const lowestWeek = ATTENDANCE_BY_WEEK.reduce((low, w) => (w.rate < low.rate ? w : low));
   const allOutstanding = sumMoney(ARREARS_AGEING.map((b) => new Money(b.amount)));
   const wholeSchool = !isAll && (
@@ -330,6 +351,26 @@ export function PreviewDashboard() {
           dashboard it opens the pupils behind the number.
         </span>
       </p>
+
+      <nav aria-label="Quick actions" className="flex flex-wrap items-center gap-2">
+        <span className="mr-1 text-label font-semibold text-ink-secondary">Quick actions</span>
+        {QUICK_ACTIONS.map((action, i) => (
+          <span
+            key={action.label}
+            aria-disabled="true"
+            title="Not linked in this preview"
+            className={cx(
+              "inline-flex min-h-9 items-center gap-2 rounded-[0.625rem] border px-3 py-1.5 font-semibold",
+              i === 0
+                ? "border-brand-edge bg-brand text-ink"
+                : "border-(--pv-line) bg-surface text-ink",
+            )}
+          >
+            <Icon icon={action.icon} />
+            {action.label}
+          </span>
+        ))}
+      </nav>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile
@@ -755,16 +796,87 @@ export function PreviewDashboard() {
           </div>
         </Card>
 
-        <Card title="Attendance this term" subtitle="Whole school, per week" aside={wholeSchool}>
-          <AttendanceTrend />
-          <p className="text-label text-ink-secondary">
-            Lowest:{" "}
-            <strong className="text-ink">
-              {lowestWeek.week}, {pct(lowestWeek.rate)}
-            </strong>
-            . In the real dashboard, each week opens the pupils absent that week.
-          </p>
-        </Card>
+        <div className="flex min-w-0 flex-col gap-4">
+          <Card
+            id="staff"
+            title="Staff"
+            subtitle="People who sign in"
+            aside={
+              <span className="inline-flex items-center gap-1.5 rounded-[0.625rem] border border-(--pv-line) px-2.5 py-1 text-label font-semibold">
+                <Icon icon={UserCog} />
+                Manage staff
+              </span>
+            }
+          >
+            <dl className="grid grid-cols-3 gap-2">
+              {(
+                [
+                  ["Teachers", staff.teachers, "sky"],
+                  ["Bursar", staff.bursars, "mint"],
+                  ["Admins", staff.admins, "lilac"],
+                ] as const
+              ).map(([label, value, tint]) => (
+                <div key={label} className={cx("rounded-[0.625rem] px-3 py-2", TINT[tint].bg)}>
+                  <dt className="text-label">{label}</dt>
+                  <dd className="text-heading font-bold tabular-nums">{value}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="text-label text-ink-secondary">
+              {staff.people} people · {staff.multiRole} has two roles (admin and teacher)
+            </p>
+            <p className="flex items-start gap-2 rounded-[0.625rem] bg-warning-bg px-3 py-2 text-label text-warning">
+              <Icon icon={TriangleAlert} className="mt-px shrink-0" />
+              <span>
+                <strong>{UNASSIGNED_SUBJECTS.length} subjects have no teacher:</strong>{" "}
+                {UNASSIGNED_SUBJECTS.join(", ")}
+              </span>
+            </p>
+            <h3 className="font-semibold">Recently added</h3>
+            <ul className="flex flex-col">
+              {recentStaff.map((person, i) => {
+                const tint = TINT[TINT_ORDER[i % TINT_ORDER.length]!];
+                return (
+                  <li
+                    key={person.name}
+                    className="flex items-center gap-2.5 border-t border-(--pv-line) py-1.5 first:border-t-0"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={cx(
+                        "grid size-8 shrink-0 place-items-center rounded-full text-caption font-bold",
+                        tint.bg,
+                        tint.ink,
+                      )}
+                    >
+                      {initials(person.name)}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">{person.name}</span>
+                      <span className="block text-caption text-ink-secondary">
+                        {person.roles.map((r) => ROLE_NAMES[r]).join(", ")}
+                      </span>
+                    </span>
+                    <span className="text-label text-ink-secondary tabular-nums">
+                      {formatDate(person.addedOn)}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </Card>
+
+          <Card title="Attendance this term" subtitle="Whole school, per week" aside={wholeSchool}>
+            <AttendanceTrend />
+            <p className="text-label text-ink-secondary">
+              Lowest:{" "}
+              <strong className="text-ink">
+                {lowestWeek.week}, {pct(lowestWeek.rate)}
+              </strong>
+              . In the real dashboard, each week opens the pupils absent that week.
+            </p>
+          </Card>
+        </div>
       </div>
     </div>
   );

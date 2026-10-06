@@ -5,9 +5,11 @@ import {
   CLASSES,
   LARGEST_ARREARS,
   PAYMENTS_BY_METHOD,
+  STAFF,
   ageBucket,
   attendanceSummary,
   feeSummary,
+  staffCounts,
 } from "./data";
 
 describe("dashboard preview figures", () => {
@@ -37,5 +39,17 @@ describe("dashboard preview figures", () => {
     expect([0, 30, 31, 60, 61].map(ageBucket)).toEqual(["0-30", "0-30", "31-60", "31-60", "60+"]);
     for (const row of LARGEST_ARREARS) expect(new Money(row.balance).isPositive()).toBe(true);
     expect(ARREARS_AGEING.map((b) => b.bucket)).toEqual(["0-30", "31-60", "60+"]);
+  });
+});
+
+describe("dashboard preview staff", () => {
+  it("counts each person once and each role separately", () => {
+    expect(staffCounts(STAFF)).toEqual({
+      people: 16,
+      teachers: 14,
+      bursars: 1,
+      admins: 2,
+      multiRole: 1,
+    });
   });
 });
