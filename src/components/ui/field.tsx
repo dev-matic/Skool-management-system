@@ -143,3 +143,21 @@ export function CheckboxGroup({
     </fieldset>
   );
 }
+
+/**
+ * A date typed as dd/mm/yyyy (docs/design-system.md, Form). Text rather than
+ * the browser's date picker, which shows US-style dates on some computers.
+ */
+export function DateInput(props: Omit<ComponentProps<"input">, "type">) {
+  return (
+    <Input
+      type="text"
+      inputMode="numeric"
+      placeholder="dd/mm/yyyy"
+      maxLength={10}
+      autoComplete="off"
+      className="tabular-nums"
+      {...props}
+    />
+  );
+}

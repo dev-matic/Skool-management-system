@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { suggestYearName, termStatus, validateTerms, validateYear, type TermInput } from "./terms";
+import {
+  overlappingYear,
+  suggestYearName,
+  termStatus,
+  termWeeks,
+  validateTerms,
+  validateYear,
+  type TermInput,
+} from "./terms";
 
 // FAKE dates for tests only; not any school's real calendar.
 const YEAR = { name: "2025/2026", startsOn: "2025-09-08", endsOn: "2026-07-24" };
@@ -98,5 +106,26 @@ describe("termStatus", () => {
   it("has no current term after the last one", () => {
     expect(termStatus(terms, "2026-08-10")).toEqual({ kind: "none" });
     expect(termStatus([], "2026-08-10")).toEqual({ kind: "none" });
+  });
+});
+
+describe("overlappingYear", () => {
+  const existing = [{ id: 1, name: "2025/2026", startsOn: "2025-09-08", endsOn: "2026-07-24" }];
+
+  it("finds a year whose dates overlap", () => {
+    const next = { name: "2026/2027", startsOn: "2026-07-01", endsOn: "2027-07-23" };
+    expect(overlappingYear(next, existing)?.id).toBe(1);
+  });
+
+  it("allows a year that starts after the last one ends", () => {
+    const next = { name: "2026/2027", startsOn: "2026-09-07", endsOn: "2027-07-23" };
+    expect(overlappingYear(next, existing)).toBeNull();
+  });
+});
+
+describe("termWeeks", () => {
+  it("counts weeks including both the first and last day", () => {
+    expect(termWeeks("2026-09-08", "2026-12-11")).toBe(14);
+    expect(termWeeks("2026-09-07", "2026-09-11")).toBe(1);
   });
 });

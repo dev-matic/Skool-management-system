@@ -102,3 +102,21 @@ export function termStatus<T extends DatedTerm>(
   if (next) return { kind: "break", next };
   return { kind: "none" };
 }
+
+/**
+ * An academic year must not overlap another year of the same school.
+ * `others` excludes the year being edited.
+ */
+export function overlappingYear<T extends YearInput>(
+  year: YearInput,
+  others: readonly T[],
+): T | null {
+  return others.find((o) => year.startsOn <= o.endsOn && o.startsOn <= year.endsOn) ?? null;
+}
+
+/** Whole weeks in a term, rounded to the nearest week (for display). */
+export function termWeeks(startsOn: IsoDate, endsOn: IsoDate): number {
+  const days =
+    (Date.parse(`${endsOn}T00:00:00Z`) - Date.parse(`${startsOn}T00:00:00Z`)) / 86_400_000 + 1;
+  return Math.round(days / 7);
+}
