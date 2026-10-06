@@ -78,3 +78,101 @@ export function Input({ className, ...props }: ComponentProps<"input">) {
     />
   );
 }
+
+/**
+ * A group of checkboxes with one legend, hint and error, e.g. a person's
+ * roles. Checked values are submitted under `name`, one entry each.
+ */
+export function CheckboxGroup({
+  name,
+  legend,
+  options,
+  defaultValues = [],
+  hint,
+  error,
+  disabledValues = [],
+}: {
+  name: string;
+  legend: string;
+  options: readonly { value: string; label: string; description?: string }[];
+  defaultValues?: readonly string[];
+  hint?: string;
+  error?: string;
+  disabledValues?: readonly string[];
+}) {
+  const hintId = hint ? `${name}-hint` : undefined;
+  const errorId = error ? `${name}-error` : undefined;
+  return (
+    <fieldset
+      className="flex flex-col gap-1"
+      aria-describedby={[hintId, errorId].filter(Boolean).join(" ") || undefined}
+      aria-invalid={error ? true : undefined}
+    >
+      <legend className="mb-1 text-label font-semibold text-ink">{legend}</legend>
+      <div className="flex flex-col gap-1.5">
+        {options.map((option) => (
+          <label key={option.value} className="flex items-start gap-2">
+            <input
+              type="checkbox"
+              name={name}
+              value={option.value}
+              defaultChecked={defaultValues.includes(option.value)}
+              disabled={disabledValues.includes(option.value)}
+              className="mt-0.5 size-4 shrink-0 rounded-control border-input pointer-coarse:size-5"
+            />
+            <span>
+              <span className="font-medium">{option.label}</span>
+              {option.description && (
+                <span className="block text-label text-ink-secondary">{option.description}</span>
+              )}
+            </span>
+          </label>
+        ))}
+      </div>
+      {hint && (
+        <p id={hintId} className="text-label text-ink-secondary">
+          {hint}
+        </p>
+      )}
+      {error && (
+        <p id={errorId} className="flex items-start gap-1 text-label font-medium text-danger">
+          <Icon icon={CircleAlert} className="mt-px shrink-0" />
+          {error}
+        </p>
+      )}
+    </fieldset>
+  );
+}
+
+/**
+ * A date typed as dd/mm/yyyy (docs/design-system.md, Form). Text rather than
+ * the browser's date picker, which shows US-style dates on some computers.
+ */
+export function DateInput(props: Omit<ComponentProps<"input">, "type">) {
+  return (
+    <Input
+      type="text"
+      inputMode="numeric"
+      placeholder="dd/mm/yyyy"
+      maxLength={10}
+      autoComplete="off"
+      className="tabular-nums"
+      {...props}
+    />
+  );
+}
+
+/** A native dropdown styled like Input. Native keeps keyboard typing-to-select. */
+export function Select({ className, ...props }: ComponentProps<"select">) {
+  return (
+    <select
+      className={cx(
+        "h-8 w-full rounded-control border border-input bg-surface px-2 text-base text-ink pointer-coarse:h-10",
+        "aria-invalid:border-2 aria-invalid:border-danger",
+        "disabled:cursor-not-allowed disabled:bg-subtle disabled:text-ink-disabled",
+        className,
+      )}
+      {...props}
+    />
+  );
+}

@@ -22,6 +22,7 @@ import {
   Tr,
   type StatusKey,
 } from "@/components/ui";
+import { previewPagesEnabled } from "../preview-pages";
 
 export const metadata: Metadata = { title: "Component reference" };
 
@@ -40,10 +41,10 @@ const SAMPLE_ROWS = [
 
 /**
  * Every shared component on one page, for review against
- * docs/design-system.md. Development only: hidden in production builds.
+ * docs/design-system.md. Development and Vercel previews only.
  */
 export default function ComponentReferencePage() {
-  if (process.env.NODE_ENV === "production") notFound();
+  if (!previewPagesEnabled()) notFound();
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6">

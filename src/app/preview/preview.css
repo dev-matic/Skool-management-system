@@ -1,0 +1,19 @@
+/*
+ * PROPOSED "soft" styles for the dashboard preview only. They are not part of
+ * docs/design-system.md until approved; nothing outside /preview uses them.
+ */
+.pv {
+  --pv-page: #f2f5fa;
+  --pv-line: #e3e9f1;
+  --pv-sky: #e3f1fb;
+  --pv-sky-ink: #0369a1;
+  --pv-mint: #e2f4e9;
+  --pv-mint-ink: #15803d;
+  --pv-peach: #fdece0;
+  --pv-peach-ink: #c2410c;
+  --pv-lilac: #ece9fb;
+  --pv-lilac-ink: #6d28d9;
+  --pv-bar: #0284c7;
+  --pv-track: #e3f1fb;
+  background: var(--pv-page);
+}

@@ -36,7 +36,10 @@ export interface MySchool {
 
 /** The signed-in user, or null. Deactivated users are treated as signed out. */
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
-  const result = await getAuth().api.getSession({ headers: await headers() });
+  // Read the request headers first: that marks the page as dynamic, so a
+  // production build never reaches getAuth() (which needs the secrets).
+  const requestHeaders = await headers();
+  const result = await getAuth().api.getSession({ headers: requestHeaders });
   if (!result || result.user.isActive === false) return null;
   return {
     id: result.user.id,

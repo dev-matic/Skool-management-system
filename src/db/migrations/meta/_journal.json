@@ -22,6 +22,27 @@
       "when": 1791318015234,
       "tag": "0002_phase1_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791318653524,
+      "tag": "0003_school_setup",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791318659043,
+      "tag": "0004_school_setup_security",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791318938794,
+      "tag": "0005_staff_other_school_check",
+      "breakpoints": true
     }
   ]
 }
