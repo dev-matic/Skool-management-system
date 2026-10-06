@@ -35,9 +35,8 @@ so multi-tenancy must be designed in from day one.
 - Primary users (admin, bursar, teachers) work on desktop/laptop computers, so
   design desktop-first: dense tables, keyboard-friendly data entry, bulk actions,
   and print-ready pages (report cards, receipts, class lists) at A4 size.
-- Keep layouts responsive so pages stay usable on a phone or tablet (parents may
-  check results or balances that way), but do not optimise for mobile at the cost
-  of the desktop experience.
+- Keep layouts responsive so pages stay usable on a tablet, since parent and
+  student access may be added in a later phase.
 - Internet in schools can be slow or unreliable: keep pages light, avoid heavy
   assets, and show clear loading and error states so data entry isn't lost.
 
@@ -91,7 +90,12 @@ clarity and trust. Motion should be minimal (simple transitions only).
 ## Architecture rules
 
 - Multi-tenant: every table has school_id; every query is scoped by school_id.
-- Role-based access: admin, bursar, teacher, parent, student.
+- Role-based access. Phase 1 roles are admin, bursar and teacher ONLY. Do not
+  build student or parent accounts, logins or screens in Phase 1; they come in
+  a later phase. Still store guardian details (name, phone, relationship) on
+  the student record, because they are needed for contact and later SMS, and
+  keep guardians as a separate entity from login accounts so accounts can be
+  added later without redesigning the database.
 - Money and grades are high-risk: use decimal types for money, and write automated
   tests for fee balances, grade calculations, and class positions.
 - Every write that matters (grades, payments, student records) goes in an audit log.
@@ -139,6 +143,10 @@ Timetable access (enforced on the server, not just hidden in the interface):
   or edit them (or a designated timetable officer role if the school wants one).
 - Every timetable query is scoped by school_id and by the viewer's role. Write
   automated tests that prove a student cannot fetch another class's timetable.
+- Clash errors (teacher double-booked, class double-booked, room clash) are
+  shown only on the admin editing screen and may name the conflicting teacher,
+  class or room. Teachers never see these messages, since they cannot edit
+  timetables.
 - Later phase (do not build yet): substitutions/cover for absent teachers,
   automatic timetable generation, and period-by-period attendance.
 
@@ -153,7 +161,9 @@ Each role gets a home screen that shows what needs action today, not decoration.
   arrears list with a one-click route to the student's fee page.
 - Teacher: today's classes (from the timetable), attendance still to mark,
   score entry progress per subject.
-- Parent (later phase): their child's attendance, results and fee balance.
+- Parent (later phase, do not build yet): their child's attendance, results and
+  fee balance.
+- Student accounts: later phase, do not build yet.
 
 Rules for every number or chart:
 
