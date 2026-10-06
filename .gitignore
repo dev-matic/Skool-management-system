@@ -21,3 +21,6 @@ coverage/
 next-env.d.ts
 playwright-report/
 test-results/
+
+# Python cache (created by the ui-ux-pro-max skill scripts)
+__pycache__/
