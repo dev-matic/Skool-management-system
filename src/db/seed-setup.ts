@@ -9,19 +9,13 @@
  */
 import { and, eq } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { STANDARD_LEVELS, type Stage } from "../domain/levels";
 import * as schema from "./schema";
 
 const { academicYear, classGroup, classSubject, gradeLevel, subject, term } = schema;
 
 type Tx = Parameters<Parameters<NodePgDatabase<typeof schema>["transaction"]>[0]>[0];
-type Stage = (typeof schema.STAGES)[number];
-
-const LEVELS: { name: string; stage: Stage }[] = [
-  { name: "KG 1", stage: "kg" },
-  { name: "KG 2", stage: "kg" },
-  ...[1, 2, 3, 4, 5, 6].map((n) => ({ name: `Basic ${n}`, stage: "primary" as const })),
-  ...[1, 2, 3].map((n) => ({ name: `JHS ${n}`, stage: "jhs" as const })),
-];
+const LEVELS = STANDARD_LEVELS;
 
 // Typical subjects for each stage. Every school can rename or change these.
 const SUBJECTS: Record<Stage, string[]> = {

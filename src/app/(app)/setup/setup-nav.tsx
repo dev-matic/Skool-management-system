@@ -7,6 +7,7 @@ import { cx } from "@/components/ui";
 /** Sections of School setup. Each is added here when it is built. */
 const SECTIONS = [
   { href: "/setup/years", label: "Years & terms" },
+  { href: "/setup/classes", label: "Classes" },
   { href: "/setup/staff", label: "Staff" },
 ] as const;
 

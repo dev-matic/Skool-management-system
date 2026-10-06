@@ -161,3 +161,18 @@ export function DateInput(props: Omit<ComponentProps<"input">, "type">) {
     />
   );
 }
+
+/** A native dropdown styled like Input. Native keeps keyboard typing-to-select. */
+export function Select({ className, ...props }: ComponentProps<"select">) {
+  return (
+    <select
+      className={cx(
+        "h-8 w-full rounded-control border border-input bg-surface px-2 text-base text-ink pointer-coarse:h-10",
+        "aria-invalid:border-2 aria-invalid:border-danger",
+        "disabled:cursor-not-allowed disabled:bg-subtle disabled:text-ink-disabled",
+        className,
+      )}
+      {...props}
+    />
+  );
+}

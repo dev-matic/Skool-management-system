@@ -15,6 +15,7 @@ import {
   unique,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { STAGES } from "../../domain/levels";
 import { user } from "./auth";
 import { school } from "./tenancy";
 
@@ -84,7 +85,6 @@ export const term = pgTable(
   ],
 );
 
-export const STAGES = ["kg", "primary", "jhs", "shs"] as const;
 export const stageEnum = pgEnum("stage", STAGES);
 
 /** A level such as "KG 1", "Basic 4" or "JHS 2", named and ordered by the school. */
