@@ -53,3 +53,12 @@ export function todayIn(timeZone: string, now: Date = new Date()): IsoDate {
     day: "2-digit",
   }).format(now);
 }
+
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+/** "2026-10-06" -> "Tuesday". */
+export function weekdayName(iso: IsoDate): string {
+  const m = ISO.exec(iso);
+  if (!m) throw new Error(`Not an ISO date: "${iso}"`);
+  return WEEKDAYS[new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]))).getUTCDay()]!;
+}

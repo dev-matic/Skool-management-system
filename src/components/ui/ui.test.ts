@@ -1,12 +1,16 @@
+import { Wallet } from "lucide-react";
 import { createElement as h } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Alert } from "./alert";
 import { Button } from "./button";
 import { Field, Input } from "./field";
+import { FigureTile } from "./figure-tile";
+import { InitialsCircle, initialsOf } from "./initials";
 import { STATUSES, type StatusKey } from "./status";
 import { StatusChip } from "./status-chip";
 import { Td, Th } from "./table";
+import { tintAt, tintFor } from "./tint";
 
 const render = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el);
 
@@ -98,5 +102,47 @@ describe("Table cells", () => {
     );
     expect(html).toContain('aria-sort="ascending"');
     expect(html).toContain('href="?sort=name"');
+  });
+});
+
+describe("Soft components", () => {
+  it("initials take the first letters of up to two names", () => {
+    expect(initialsOf("Akosua Mensah")).toBe("AM");
+    expect(initialsOf("Abdul-Rahman  Issah Yakubu")).toBe("AI");
+    expect(initialsOf("efua")).toBe("E");
+  });
+
+  it("gives the same text the same tint, and cycles tints in order", () => {
+    expect(tintFor("Mathematics")).toBe(tintFor("Mathematics"));
+    expect([0, 1, 2, 3, 4, -1].map(tintAt)).toEqual([
+      "sky",
+      "mint",
+      "peach",
+      "lilac",
+      "sky",
+      "lilac",
+    ]);
+  });
+
+  it("a figure tile is a link with the figure and where it leads", () => {
+    const html = render(
+      h(FigureTile, {
+        tint: "mint",
+        icon: Wallet,
+        label: "Fees collected",
+        value: "GH₵ 10.00",
+        detail: "of GH₵ 20.00",
+        href: "/fees",
+        linkLabel: "See by class",
+      }),
+    );
+    expect(html).toMatch(/^<a [^>]*href="\/fees"/);
+    expect(html).toContain("GH₵ 10.00");
+    expect(html).toContain("See by class");
+    expect(html).toContain("bg-tint-mint");
+  });
+
+  it("initials circles are hidden from screen readers", () => {
+    expect(render(h(InitialsCircle, { name: "Kojo Asante" }))).toContain('aria-hidden="true"');
   });
 });

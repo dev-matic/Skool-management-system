@@ -54,6 +54,18 @@ const PAIRS: [string, string, number][] = [
   ["brand-edge", "surface", NON_TEXT],
   ["focus", "surface", NON_TEXT],
   ["focus", "brand", NON_TEXT],
+  ["ink", "tint-sky", TEXT],
+  ["ink", "tint-mint", TEXT],
+  ["ink", "tint-peach", TEXT],
+  ["ink", "tint-lilac", TEXT],
+  ["tint-sky-ink", "tint-sky", NON_TEXT],
+  ["tint-mint-ink", "tint-mint", NON_TEXT],
+  ["tint-peach-ink", "tint-peach", NON_TEXT],
+  ["tint-lilac-ink", "tint-lilac", NON_TEXT],
+  ["tint-sky-ink", "surface", NON_TEXT],
+  ["tint-mint-ink", "surface", NON_TEXT],
+  ["tint-peach-ink", "surface", NON_TEXT],
+  ["tint-lilac-ink", "surface", NON_TEXT],
 ];
 
 describe("design tokens", () => {

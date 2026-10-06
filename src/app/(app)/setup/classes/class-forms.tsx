@@ -82,7 +82,7 @@ export function AddClassForm({
       action={action}
       noValidate
       aria-label="Add a class"
-      className="flex flex-col gap-2 rounded-panel border border-divider bg-surface px-3 py-3"
+      className="flex flex-col gap-2 rounded-panel border border-card-edge bg-surface shadow-card px-3 py-3"
     >
       <input type="hidden" name="yearId" value={yearId} />
       {errors.form && <Alert tone="danger">{errors.form}</Alert>}

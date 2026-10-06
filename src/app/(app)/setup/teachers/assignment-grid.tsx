@@ -72,14 +72,13 @@ export function AssignmentGridForm({ yearId, grid, teachers }: Props) {
         {/* Only cells changed on this page are sent, so saving never undoes
             another person's changes to other cells. */}
         {Object.entries(assigned)
-          .filter(([k, teacherId]) => saved[k] !== teacherId)
-          .map(([k, teacherId]) => (
-            <input
-              key={k}
-              type="hidden"
-              name={`cs-${grid.cells[k]!.classSubjectId}`}
-              value={teacherId}
-            />
+          .flatMap(([k, teacherId]) => {
+            // A cell can vanish when someone else removes the subject meanwhile.
+            const cell = grid.cells[k];
+            return cell && saved[k] !== teacherId ? [{ k, cell, teacherId }] : [];
+          })
+          .map(({ k, cell, teacherId }) => (
+            <input key={k} type="hidden" name={`cs-${cell.classSubjectId}`} value={teacherId} />
           ))}
       </form>
       {state.errors?.form && <Alert tone="danger">{state.errors.form}</Alert>}
@@ -127,7 +126,7 @@ export function AssignmentGridForm({ yearId, grid, teachers }: Props) {
                 These classes do not take any subjects yet. Tick them on the Subjects page.
               </p>
             ) : (
-              <div className="relative overflow-x-auto rounded-panel border border-divider bg-surface">
+              <div className="relative overflow-x-auto rounded-panel border border-card-edge bg-surface shadow-card">
                 <table className="border-collapse text-base">
                   <caption className="sr-only">
                     {STAGE_LABELS[stage]}: choose a teacher for each subject a class takes

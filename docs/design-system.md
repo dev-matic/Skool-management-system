@@ -1,9 +1,9 @@
 # Design system
 
-Approved 06/10/2026; "soft" style revision PROPOSED 06/10/2026 (awaiting
-approval). This is the single source of truth for how every screen
-looks and behaves. Reuse it everywhere; do not restyle screens ad hoc. Ask
-before changing anything in this file (see CLAUDE.md).
+Approved 06/10/2026; "soft" style revision approved 06/10/2026. This is the
+single source of truth for how every screen looks and behaves. Reuse it
+everywhere; do not restyle screens ad hoc. Ask before changing anything in this
+file (see CLAUDE.md).
 
 Proposed with the ui-ux-pro-max skill, filtered against CLAUDE.md. Where the
 two disagree, CLAUDE.md wins.

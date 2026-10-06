@@ -17,11 +17,12 @@
   --color-current: currentColor;
 
   /* Neutrals */
-  --color-page: #f8fafc;
+  --color-page: #f2f5fa;
   --color-surface: #ffffff;
   --color-subtle: #f1f5f9;
   --color-row-hover: #f8fafc;
   --color-divider: #e2e8f0;
+  --color-card-edge: #e3e9f1;
   --color-input: #64748b;
   --color-ink: #0f172a;
   --color-ink-secondary: #475569;
@@ -34,6 +35,16 @@
   --color-brand-tint: #e0f2fe;
   --color-brand-strong: #0369a1;
   --color-focus: #1d4ed8;
+
+  /* Tints: soft accents, never status. Text on them is always ink. */
+  --color-tint-sky: #e3f1fb;
+  --color-tint-sky-ink: #0369a1;
+  --color-tint-mint: #e2f4e9;
+  --color-tint-mint-ink: #15803d;
+  --color-tint-peach: #fdece0;
+  --color-tint-peach-ink: #c2410c;
+  --color-tint-lilac: #ece9fb;
+  --color-tint-lilac-ink: #6d28d9;
 
   /* Status: dark text on a light tint */
   --color-success: #166534;
@@ -62,10 +73,13 @@
   --text-caption--line-height: 1rem;
   --text-reading: 1rem;
   --text-reading--line-height: 1.5rem;
+  --text-figure: 1.625rem;
+  --text-figure--line-height: 2rem;
 
   /* Shape and depth */
-  --radius-control: 0.25rem;
-  --radius-panel: 0.375rem;
+  --radius-control: 0.5rem;
+  --radius-panel: 0.875rem;
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04);
   --shadow-overlay: 0 4px 12px rgb(15 23 42 / 0.12);
 }
 

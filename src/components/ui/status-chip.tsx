@@ -8,7 +8,7 @@ export function StatusChip({ status }: { status: StatusKey }) {
   return (
     <span
       className={cx(
-        "inline-flex h-[1.375rem] items-center gap-1 rounded-control px-1.5 text-caption font-semibold whitespace-nowrap",
+        "inline-flex h-[1.375rem] items-center gap-1 rounded-full px-2 text-caption font-semibold whitespace-nowrap",
         "print:border print:border-black print:bg-transparent print:text-black",
         TONE_CLASSES[tone],
       )}

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { CalendarRange, School, UserPlus, Users } from "lucide-react";
 import {
   Badge,
+  LinkButton,
   PageHeader,
   Panel,
+  QuickActions,
   Table,
   TBody,
   TableEmpty,
@@ -11,6 +14,7 @@ import {
   THead,
   Tr,
 } from "@/components/ui";
+import { formatDate, weekdayName } from "@/domain/dates";
 import { hasAnyRole, ROLE_LABELS } from "@/domain/roles";
 import { pickYear } from "@/domain/terms";
 import { getCurrentTerm, listYears } from "@/server/academic-years";
@@ -23,11 +27,13 @@ export default async function DashboardPage() {
   // Every page checks access itself; layouts alone are not enough.
   const ctx = await getTenantContext();
   const isTeacher = hasAnyRole(ctx.roles, ["teacher"]);
+  const isAdmin = hasAnyRole(ctx.roles, ["admin"]);
+  const current = await getCurrentTerm(ctx);
 
   let teaching: { className: string; subjects: string[]; isClassTeacher: boolean }[] = [];
   let yearName: string | null = null;
   if (isTeacher) {
-    const [years, current] = await Promise.all([listYears(ctx), getCurrentTerm(ctx)]);
+    const years = await listYears(ctx);
     const year = pickYear(years, undefined, current.today);
     if (year) {
       yearName = year.name;
@@ -47,6 +53,10 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-5">
+      <p className="-mb-4 text-label text-ink-secondary">
+        {weekdayName(current.today)}{" "}
+        <span className="tabular-nums">{formatDate(current.today)}</span>
+      </p>
       <PageHeader
         title={`Welcome, ${ctx.userName}`}
         description={
@@ -57,6 +67,23 @@ export default async function DashboardPage() {
           </>
         }
       />
+
+      {isAdmin && (
+        <QuickActions>
+          <LinkButton href="/setup/staff/new" variant="primary" icon={UserPlus}>
+            Add staff
+          </LinkButton>
+          <LinkButton href="/setup/classes" icon={School}>
+            Classes
+          </LinkButton>
+          <LinkButton href="/setup/teachers" icon={Users}>
+            Assign teachers
+          </LinkButton>
+          <LinkButton href="/setup/years" icon={CalendarRange}>
+            Years &amp; terms
+          </LinkButton>
+        </QuickActions>
+      )}
 
       {isTeacher && (
         <section aria-labelledby="my-classes" className="flex max-w-3xl flex-col gap-2">

@@ -31,7 +31,7 @@ const MENU: { label: string; icon: LucideIcon; current?: boolean }[] = [
 
 function SchoolMark() {
   return (
-    <span className="grid size-9 shrink-0 place-items-center rounded-[0.625rem] bg-brand font-bold text-ink">
+    <span className="grid size-9 shrink-0 place-items-center rounded-control bg-brand font-bold text-ink">
       DB
     </span>
   );
@@ -40,8 +40,8 @@ function SchoolMark() {
 /** PROPOSED soft app frame: white sidebar and top bar on a tinted page. */
 export function PreviewShell({ children }: { children: ReactNode }) {
   return (
-    <div className="pv min-h-screen lg:flex">
-      <aside className="hidden w-60 shrink-0 flex-col gap-6 border-r border-(--pv-line) bg-surface px-3 py-4 lg:sticky lg:top-0 lg:flex lg:h-screen">
+    <div className="min-h-screen lg:flex">
+      <aside className="hidden w-60 shrink-0 flex-col gap-6 border-r border-card-edge bg-surface px-3 py-4 lg:sticky lg:top-0 lg:flex lg:h-screen">
         <div className="flex items-center gap-2.5 px-2">
           <SchoolMark />
           <span className="min-w-0 leading-tight">
@@ -50,9 +50,7 @@ export function PreviewShell({ children }: { children: ReactNode }) {
           </span>
         </div>
         <nav aria-label="Main (preview)">
-          <p className="px-2.5 pb-2 text-caption font-semibold tracking-wide text-ink-secondary uppercase">
-            Menu
-          </p>
+          <p className="px-2.5 pb-2 text-caption font-semibold text-ink-secondary">Menu</p>
           <ul className="flex flex-col gap-0.5">
             {MENU.map((item) => (
               <li key={item.label}>
@@ -61,7 +59,7 @@ export function PreviewShell({ children }: { children: ReactNode }) {
                   aria-disabled={item.current ? undefined : "true"}
                   title={item.current ? undefined : "Not linked in this preview"}
                   className={cx(
-                    "flex min-h-9 items-center gap-2.5 rounded-[0.625rem] px-2.5 py-1.5 font-medium",
+                    "flex min-h-9 items-center gap-2.5 rounded-control px-2.5 py-1.5 font-medium",
                     item.current ? "bg-brand-tint font-semibold text-ink" : "text-ink",
                   )}
                 >
@@ -79,7 +77,7 @@ export function PreviewShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-(--pv-line) bg-surface px-4 lg:px-6">
+        <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-card-edge bg-surface px-4 lg:px-6">
           <span className="lg:hidden">
             <SchoolMark />
           </span>
@@ -93,14 +91,14 @@ export function PreviewShell({ children }: { children: ReactNode }) {
               type="search"
               disabled
               placeholder="Search pupils and receipts (comes with Students)"
-              className="h-9 w-full rounded-full border border-(--pv-line) bg-(--pv-page) pr-3 pl-9 text-base placeholder:text-ink-secondary disabled:cursor-not-allowed"
+              className="h-9 w-full rounded-full border border-card-edge bg-page pr-3 pl-9 text-base placeholder:text-ink-secondary disabled:cursor-not-allowed"
             />
           </label>
           <div className="ml-auto flex items-center gap-3">
             <span className="hidden rounded-full bg-brand-tint px-3 py-1 text-label font-semibold whitespace-nowrap sm:inline">
               {PREVIEW_TERM}
             </span>
-            <span className="grid size-9 place-items-center rounded-full bg-(--pv-lilac) text-label font-bold text-(--pv-lilac-ink)">
+            <span className="grid size-9 place-items-center rounded-full bg-tint-lilac text-label font-bold text-tint-lilac-ink">
               AM
             </span>
             <span className="hidden leading-tight sm:block">

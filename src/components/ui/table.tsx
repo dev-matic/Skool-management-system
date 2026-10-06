@@ -24,7 +24,7 @@ export function Table({
     <div
       className={cx(
         // relative: hidden screen-reader text stays inside the scroll box.
-        "relative overflow-x-auto rounded-panel border border-divider bg-surface print:overflow-visible print:border-black",
+        "relative overflow-x-auto rounded-panel border border-card-edge bg-surface shadow-card print:overflow-visible print:border-black",
         className,
       )}
     >

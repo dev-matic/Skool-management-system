@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ArrowRight,
   CalendarCheck,
   CalendarX,
   Check,
@@ -20,8 +19,8 @@ import {
   UserCog,
   UserPlus,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
-import { Icon, cx } from "@/components/ui";
+import { useState } from "react";
+import { FigureTile, Icon, Panel as Card, cx } from "@/components/ui";
 import { formatDate } from "@/domain/dates";
 import { Money, formatGHS, sumMoney } from "@/domain/money";
 import {
@@ -49,10 +48,10 @@ type Tint = "sky" | "mint" | "peach" | "lilac";
 
 // Full class names so Tailwind can see them.
 const TINT: Record<Tint, { bg: string; ink: string }> = {
-  sky: { bg: "bg-(--pv-sky)", ink: "text-(--pv-sky-ink)" },
-  mint: { bg: "bg-(--pv-mint)", ink: "text-(--pv-mint-ink)" },
-  peach: { bg: "bg-(--pv-peach)", ink: "text-(--pv-peach-ink)" },
-  lilac: { bg: "bg-(--pv-lilac)", ink: "text-(--pv-lilac-ink)" },
+  sky: { bg: "bg-tint-sky", ink: "text-tint-sky-ink" },
+  mint: { bg: "bg-tint-mint", ink: "text-tint-mint-ink" },
+  peach: { bg: "bg-tint-peach", ink: "text-tint-peach-ink" },
+  lilac: { bg: "bg-tint-lilac", ink: "text-tint-lilac-ink" },
 };
 const TINT_ORDER: Tint[] = ["sky", "mint", "peach", "lilac"];
 
@@ -65,9 +64,6 @@ const QUICK_ACTIONS: { label: string; icon: LucideIcon }[] = [
 ];
 
 const ROLE_NAMES = { admin: "Admin", bursar: "Bursar", teacher: "Teacher" } as const;
-
-const CARD =
-  "rounded-[0.875rem] border border-(--pv-line) bg-surface shadow-[0_1px_2px_rgb(15_23_42/0.04)]";
 
 /** Percent with one decimal place, e.g. "75.0%". */
 function pct(value: number): string {
@@ -82,94 +78,10 @@ function initials(name: string): string {
     .join("");
 }
 
-function Card({
-  id,
-  title,
-  subtitle,
-  aside,
-  className,
-  children,
-}: {
-  id?: string;
-  title: string;
-  subtitle?: string;
-  aside?: ReactNode;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <section
-      id={id}
-      aria-labelledby={id ? `${id}-title` : undefined}
-      className={cx(CARD, "flex min-w-0 scroll-mt-20 flex-col gap-3 p-4", className)}
-    >
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h2 id={id ? `${id}-title` : undefined} className="text-heading font-semibold">
-            {title}
-          </h2>
-          {subtitle && <p className="text-label text-ink-secondary">{subtitle}</p>}
-        </div>
-        {aside}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function StatTile({
-  tint,
-  icon,
-  label,
-  value,
-  detail,
-  href,
-  linkLabel,
-  children,
-}: {
-  tint: Tint;
-  icon: LucideIcon;
-  label: string;
-  value: string;
-  detail: ReactNode;
-  href: string;
-  linkLabel: string;
-  children?: ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      className={cx(
-        "group flex flex-col gap-2 rounded-[0.875rem] p-4 text-ink hover:ring-2 hover:ring-(--pv-line)",
-        TINT[tint].bg,
-      )}
-    >
-      <span className="flex items-start justify-between gap-2">
-        <span className="font-semibold">{label}</span>
-        <span
-          className={cx(
-            "grid size-9 shrink-0 place-items-center rounded-[0.625rem] bg-surface",
-            TINT[tint].ink,
-          )}
-        >
-          <Icon icon={icon} size="md" />
-        </span>
-      </span>
-      <span className="text-[1.625rem] leading-8 font-bold tabular-nums">{value}</span>
-      <span className="text-label">{detail}</span>
-      {children}
-      <span className="mt-auto inline-flex items-center gap-1 pt-1 text-label font-semibold group-hover:underline">
-        {linkLabel}
-        <Icon icon={ArrowRight} />
-      </span>
-    </a>
-  );
-}
-
 function Bar({
   percent,
-  fill = "bg-(--pv-bar)",
-  track = "bg-(--pv-track)",
+  fill = "bg-brand-edge",
+  track = "bg-brand-tint",
 }: {
   percent: number;
   fill?: string;
@@ -186,10 +98,10 @@ function Bar({
 }
 
 const TH = "h-8 px-2 text-left text-label font-semibold whitespace-nowrap text-ink-secondary";
-const TD = "h-9 border-t border-(--pv-line) px-2 py-1.5 align-middle";
+const TD = "h-9 border-t border-card-edge px-2 py-1.5 align-middle";
 
 const AGE_STYLE: Record<AgeBucket, { label: string; chip: string }> = {
-  "0-30": { label: "0–30 days", chip: "bg-(--pv-sky) text-ink" },
+  "0-30": { label: "0–30 days", chip: "bg-tint-sky text-ink" },
   "31-60": { label: "31–60 days", chip: "bg-warning-bg text-warning" },
   "60+": { label: "Over 60 days", chip: "bg-danger-bg text-danger" },
 };
@@ -201,10 +113,10 @@ const PENDING_STYLE: Record<PendingItem["kind"], { icon: LucideIcon; tint: Tint 
 };
 
 const METHOD_COLOURS = [
-  "bg-(--pv-bar)",
-  "bg-(--pv-peach-ink)",
-  "bg-(--pv-lilac-ink)",
-  "bg-(--pv-mint-ink)",
+  "bg-brand-edge",
+  "bg-tint-peach-ink",
+  "bg-tint-lilac-ink",
+  "bg-tint-mint-ink",
   "bg-neutral",
 ];
 
@@ -234,7 +146,7 @@ function AttendanceTrend() {
             x2={w - pad.right}
             y1={y(tick)}
             y2={y(tick)}
-            stroke="var(--pv-line)"
+            stroke="var(--color-card-edge)"
           />
           <text
             x={pad.left - 6}
@@ -249,7 +161,7 @@ function AttendanceTrend() {
       <polyline
         points={points}
         fill="none"
-        stroke="var(--pv-bar)"
+        stroke="var(--color-brand-edge)"
         strokeWidth={2.5}
         strokeLinejoin="round"
       />
@@ -260,7 +172,7 @@ function AttendanceTrend() {
             cy={y(p.rate)}
             r={4}
             fill="white"
-            stroke="var(--pv-bar)"
+            stroke="var(--color-brand-edge)"
             strokeWidth={2}
           />
           <text
@@ -319,7 +231,7 @@ export function PreviewDashboard() {
         <div className="flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1 text-label font-semibold">
             Term
-            <select className="h-9 rounded-[0.625rem] border border-input bg-surface px-2.5 text-base font-normal">
+            <select className="h-9 rounded-control border border-input bg-surface px-2.5 text-base font-normal">
               <option>Term 1, 2026/2027</option>
               <option disabled>Term 2 (not started)</option>
               <option disabled>Term 3 (not started)</option>
@@ -330,7 +242,7 @@ export function PreviewDashboard() {
             <select
               value={classFilter}
               onChange={(e) => setClassFilter(e.target.value)}
-              className="h-9 min-w-36 rounded-[0.625rem] border border-input bg-surface px-2.5 text-base font-normal"
+              className="h-9 min-w-36 rounded-control border border-input bg-surface px-2.5 text-base font-normal"
             >
               <option value="all">All classes</option>
               {CLASSES.map((c) => (
@@ -343,7 +255,7 @@ export function PreviewDashboard() {
         </div>
       </div>
 
-      <p className="flex items-start gap-2 rounded-[0.625rem] border border-dashed border-input bg-surface px-3 py-2 text-label text-ink-secondary">
+      <p className="flex items-start gap-2 rounded-control border border-dashed border-input bg-surface px-3 py-2 text-label text-ink-secondary">
         <Icon icon={Info} className="mt-px shrink-0 text-brand-strong" />
         <span>
           <strong className="text-ink">Design preview with FAKE demo data.</strong> No real school,
@@ -360,10 +272,10 @@ export function PreviewDashboard() {
             aria-disabled="true"
             title="Not linked in this preview"
             className={cx(
-              "inline-flex min-h-9 items-center gap-2 rounded-[0.625rem] border px-3 py-1.5 font-semibold",
+              "inline-flex min-h-9 items-center gap-2 rounded-control border px-3 py-1.5 font-semibold",
               i === 0
                 ? "border-brand-edge bg-brand text-ink"
-                : "border-(--pv-line) bg-surface text-ink",
+                : "border-card-edge bg-surface text-ink",
             )}
           >
             <Icon icon={action.icon} />
@@ -373,7 +285,7 @@ export function PreviewDashboard() {
       </nav>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile
+        <FigureTile
           tint="sky"
           icon={CalendarCheck}
           label="Attendance today"
@@ -387,7 +299,7 @@ export function PreviewDashboard() {
           href="#attendance"
           linkLabel="See classes"
         />
-        <StatTile
+        <FigureTile
           tint="mint"
           icon={Wallet}
           label="Fees collected this term"
@@ -400,9 +312,9 @@ export function PreviewDashboard() {
           href="#fees"
           linkLabel="See by class"
         >
-          <Bar percent={fees.rate} fill="bg-(--pv-mint-ink)" track="bg-surface" />
-        </StatTile>
-        <StatTile
+          <Bar percent={fees.rate} fill="bg-tint-mint-ink" track="bg-surface" />
+        </FigureTile>
+        <FigureTile
           tint="peach"
           icon={HandCoins}
           label="Still owed this term"
@@ -416,7 +328,7 @@ export function PreviewDashboard() {
           href="#arrears"
           linkLabel="See largest balances"
         />
-        <StatTile
+        <FigureTile
           tint="lilac"
           icon={TriangleAlert}
           label="Needs attention"
@@ -536,7 +448,7 @@ export function PreviewDashboard() {
             {PAYMENTS_BY_METHOD.map((p, i) => (
               <li
                 key={p.method}
-                className="flex items-center gap-2 border-t border-(--pv-line) py-1.5 first:border-t-0"
+                className="flex items-center gap-2 border-t border-card-edge py-1.5 first:border-t-0"
               >
                 <span
                   aria-hidden="true"
@@ -550,7 +462,7 @@ export function PreviewDashboard() {
               </li>
             ))}
           </ul>
-          <p className="rounded-[0.625rem] bg-(--pv-sky) px-3 py-2 text-label">
+          <p className="rounded-control bg-tint-sky px-3 py-2 text-label">
             Mobile money: <strong>{pct(percentOf(momoTotal, methodTotal))}</strong> of all payments
           </p>
 
@@ -564,7 +476,7 @@ export function PreviewDashboard() {
             {RECEIPTS_TODAY.map((r) => (
               <li
                 key={r.receipt}
-                className="grid grid-cols-[3rem_1fr_auto] items-baseline gap-x-2 border-t border-(--pv-line) py-1.5 first:border-t-0"
+                className="grid grid-cols-[3rem_1fr_auto] items-baseline gap-x-2 border-t border-card-edge py-1.5 first:border-t-0"
               >
                 <span className="text-label text-ink-secondary tabular-nums">{r.time}</span>
                 <span className="min-w-0">
@@ -674,11 +586,11 @@ export function PreviewDashboard() {
                 return (
                   <li
                     key={p.title}
-                    className="flex items-start gap-3 rounded-[0.625rem] p-2 hover:bg-row-hover"
+                    className="flex items-start gap-3 rounded-control p-2 hover:bg-row-hover"
                   >
                     <span
                       className={cx(
-                        "grid size-9 shrink-0 place-items-center rounded-[0.625rem]",
+                        "grid size-9 shrink-0 place-items-center rounded-control",
                         TINT[style.tint].bg,
                         TINT[style.tint].ink,
                       )}
@@ -708,7 +620,7 @@ export function PreviewDashboard() {
             {ARREARS_AGEING.map((b) => (
               <div
                 key={b.bucket}
-                className={cx("rounded-[0.625rem] px-3 py-2", AGE_STYLE[b.bucket].chip)}
+                className={cx("rounded-control px-3 py-2", AGE_STYLE[b.bucket].chip)}
               >
                 <p className="text-label font-semibold">{AGE_STYLE[b.bucket].label}</p>
                 <p className="text-heading font-bold text-ink tabular-nums">
@@ -802,7 +714,7 @@ export function PreviewDashboard() {
             title="Staff"
             subtitle="People who sign in"
             aside={
-              <span className="inline-flex items-center gap-1.5 rounded-[0.625rem] border border-(--pv-line) px-2.5 py-1 text-label font-semibold">
+              <span className="inline-flex items-center gap-1.5 rounded-control border border-card-edge px-2.5 py-1 text-label font-semibold">
                 <Icon icon={UserCog} />
                 Manage staff
               </span>
@@ -816,7 +728,7 @@ export function PreviewDashboard() {
                   ["Admins", staff.admins, "lilac"],
                 ] as const
               ).map(([label, value, tint]) => (
-                <div key={label} className={cx("rounded-[0.625rem] px-3 py-2", TINT[tint].bg)}>
+                <div key={label} className={cx("rounded-control px-3 py-2", TINT[tint].bg)}>
                   <dt className="text-label">{label}</dt>
                   <dd className="text-heading font-bold tabular-nums">{value}</dd>
                 </div>
@@ -825,7 +737,7 @@ export function PreviewDashboard() {
             <p className="text-label text-ink-secondary">
               {staff.people} people · {staff.multiRole} has two roles (admin and teacher)
             </p>
-            <p className="flex items-start gap-2 rounded-[0.625rem] bg-warning-bg px-3 py-2 text-label text-warning">
+            <p className="flex items-start gap-2 rounded-control bg-warning-bg px-3 py-2 text-label text-warning">
               <Icon icon={TriangleAlert} className="mt-px shrink-0" />
               <span>
                 <strong>{UNASSIGNED_SUBJECTS.length} subjects have no teacher:</strong>{" "}
@@ -839,7 +751,7 @@ export function PreviewDashboard() {
                 return (
                   <li
                     key={person.name}
-                    className="flex items-center gap-2.5 border-t border-(--pv-line) py-1.5 first:border-t-0"
+                    className="flex items-center gap-2.5 border-t border-card-edge py-1.5 first:border-t-0"
                   >
                     <span
                       aria-hidden="true"
