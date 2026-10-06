@@ -13,10 +13,11 @@ web
 - **Teachers** take attendance and enter class and exam scores for a whole class
   at a time, then produce report cards at the end of each term.
 - **Admins** (head teacher or office staff) set up the school: academic years,
-  terms, classes, subjects, teacher assignments and student records, often by
-  bulk import from spreadsheets.
-- **Parents and students** (later phase) check results and balances, usually on
-  a phone.
+  terms, classes, subjects, teacher assignments, timetables and student records,
+  often by bulk import from spreadsheets.
+- **Parents and students** have no accounts in Phase 1. Guardian details (name,
+  phone, relationship) are stored on the student record for contact and later
+  SMS, kept separate from login accounts so accounts can be added later.
 
 ## Product Purpose
 
@@ -51,14 +52,28 @@ balances and grades are always correct, and the school trusts the printouts.
 
 ## Capabilities and Constraints
 
-- Phase 1 (MVP): accounts and roles; school setup; student records with bulk
-  CSV/Excel import; attendance; grades and printable report cards; fees and
-  payments with receipts and arrears reports.
-- Later phases, not built yet: SMS notifications, parent portal,
-  announcements/calendar, library, inventory, HR, multi-school onboarding and
-  billing, scanning/OCR of paper records.
-- Multi-tenant from day one (every record belongs to a school). Roles: admin,
-  bursar, teacher, parent, student.
+- Phase 1 (MVP): accounts and roles; school setup; timetable (class and teacher
+  timetables with clash checks); student records with bulk CSV/Excel import;
+  attendance; grades and printable report cards; fees and payments with
+  receipts and arrears reports; role-based home dashboards (admin, bursar,
+  teacher); focused analytics for fees, attendance and academics.
+- Timetable: each school defines its own days, periods and breaks; supports
+  subject teachers moving between classes (JHS/SHS) and one class teacher
+  covering most subjects (KG/Primary). Tied to a term with history. Admins
+  create and edit; teachers see their own and their classes' timetables
+  read-only. Access is enforced on the server; clash messages appear only on
+  the admin editing screen.
+- Dashboards: each role's home screen shows what needs action today. Every
+  number or chart leads to the students behind it, uses simple charts with
+  exact figures, is scoped by school and role, and can be filtered by term,
+  class and date range. Metric definitions live in docs/metrics.md with tests.
+- Later phases, not built yet: parent and student accounts, SMS notifications,
+  parent portal, announcements/calendar, library, inventory, HR, multi-school
+  onboarding and billing, scanning/OCR of paper records, timetable
+  substitutions and automatic generation, predictive or cross-school analytics.
+- Multi-tenant from day one (every record belongs to a school). Phase 1 roles:
+  admin, bursar and teacher only; parent and student accounts come in a later
+  phase.
 - Student data is children's personal data: Ghana Data Protection Act
   principles apply (least privilege, audit logs, encryption in transit,
   backups).
