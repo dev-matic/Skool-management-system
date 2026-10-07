@@ -1,7 +1,7 @@
 /**
  * Creates FAKE demo data for development and testing: two schools, staff
- * accounts, and the demo school's setup (see seed-setup.ts). Safe to run
- * repeatedly (existing rows are left alone).
+ * accounts, and the demo school's setup and timetable (see seed-setup.ts and
+ * seed-timetable.ts). Safe to run repeatedly (existing rows are left alone).
  *
  *   pnpm db:seed
  *
@@ -12,10 +12,12 @@ import { hashPassword } from "better-auth/crypto";
 import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import { todayIn } from "../domain/dates";
 import { placeholderEmailForPhone } from "../domain/login";
 import type { Phase1Role } from "../domain/roles";
 import * as schema from "./schema";
 import { seedDemoSetup } from "./seed-setup";
+import { seedDemoTimetable } from "./seed-timetable";
 
 const { account, membership, school, user } = schema;
 
@@ -153,6 +155,7 @@ async function main() {
 
       // The second school is left without setup, to show empty screens.
       await seedDemoSetup(tx, schoolIds.get("demo-basic")!, userIdByPhone);
+      await seedDemoTimetable(tx, schoolIds.get("demo-basic")!, todayIn("Africa/Accra"));
     });
   } finally {
     await pool.end();

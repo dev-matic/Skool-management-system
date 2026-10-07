@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { CalendarRange, School, UserPlus, Users } from "lucide-react";
+import { CalendarClock, CalendarRange, School, UserPlus, Users } from "lucide-react";
+import Link from "next/link";
 import {
   Badge,
   LinkButton,
@@ -17,9 +18,12 @@ import {
 import { formatDate, weekdayName } from "@/domain/dates";
 import { hasAnyRole, ROLE_LABELS } from "@/domain/roles";
 import { pickYear } from "@/domain/terms";
+import { isoWeekday } from "@/domain/timetable";
 import { getCurrentTerm, listYears } from "@/server/academic-years";
 import { myAssignments } from "@/server/assignments";
 import { getTenantContext } from "@/server/tenant";
+import { lessonsForDay, type TimetableLesson } from "@/server/timetable";
+import { LessonCard } from "../timetable/timetable-grid";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -29,6 +33,11 @@ export default async function DashboardPage() {
   const isTeacher = hasAnyRole(ctx.roles, ["teacher"]);
   const isAdmin = hasAnyRole(ctx.roles, ["admin"]);
   const current = await getCurrentTerm(ctx);
+
+  // Today's lessons come from the timetable of the term running today.
+  const todayTerm = current.status.kind === "in-term" ? current.status.term : null;
+  const today: TimetableLesson[] =
+    isTeacher && todayTerm ? await lessonsForDay(ctx, todayTerm.id, isoWeekday(current.today)) : [];
 
   let teaching: { className: string; subjects: string[]; isClassTeacher: boolean }[] = [];
   let yearName: string | null = null;
@@ -79,10 +88,60 @@ export default async function DashboardPage() {
           <LinkButton href="/setup/teachers" icon={Users}>
             Assign teachers
           </LinkButton>
+          <LinkButton href="/timetable" icon={CalendarClock}>
+            Timetable
+          </LinkButton>
           <LinkButton href="/setup/years" icon={CalendarRange}>
             Years &amp; terms
           </LinkButton>
         </QuickActions>
+      )}
+
+      {isTeacher && (
+        <Panel
+          id="today"
+          title="Today's classes"
+          subtitle={
+            todayTerm ? `${weekdayName(current.today)}, from the timetable` : "Not term time"
+          }
+          aside={
+            <LinkButton href="/timetable" size="compact" icon={CalendarClock}>
+              My timetable
+            </LinkButton>
+          }
+          className="max-w-3xl"
+        >
+          {!todayTerm ? (
+            <p className="text-ink-secondary">No lessons: the school is on holiday.</p>
+          ) : today.length === 0 ? (
+            <p className="text-ink-secondary">No lessons on your timetable today.</p>
+          ) : (
+            <ol className="flex flex-col divide-y divide-divider">
+              {today.map((l) => (
+                <li
+                  key={`${l.periodId}-${l.classId}`}
+                  className="grid grid-cols-[6.5rem_1fr] items-start gap-3 py-2"
+                >
+                  <span className="pt-1.5 text-label tabular-nums">
+                    <span className="block font-semibold">
+                      {l.startsAt}–{l.endsAt}
+                    </span>
+                    <span className="text-ink-secondary">{l.periodName}</span>
+                  </span>
+                  <Link
+                    href={`/timetable/classes/${l.classId}?term=${todayTerm.id}`}
+                    aria-label={`${l.subjectName} with ${l.className}, ${l.startsAt}`}
+                    className="block rounded-control hover:ring-2 hover:ring-card-edge"
+                  >
+                    <LessonCard
+                      lesson={{ title: l.subjectName, detail: l.className, room: l.roomName }}
+                    />
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          )}
+        </Panel>
       )}
 
       {isTeacher && (
