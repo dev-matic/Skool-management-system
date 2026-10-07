@@ -19,3 +19,8 @@ test("reference and preview pages are hidden in production builds", async ({ req
     expect(response.status(), path).toBe(404);
   }
 });
+
+test("a configured site never shows the not-set-up page", async ({ page }) => {
+  await page.goto("/setup-needed");
+  await expect(page).toHaveURL(/\/login$/);
+});
