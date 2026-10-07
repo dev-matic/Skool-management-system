@@ -5,7 +5,7 @@ import { hasAnyRole } from "@/domain/roles";
 import { isoWeekday } from "@/domain/timetable";
 import { listTeachers } from "@/server/classes";
 import { requireRole } from "@/server/tenant";
-import { getTeacherTimetable } from "@/server/timetable";
+import { getDayPlans, getTeacherTimetable } from "@/server/timetable";
 import { loadTerm } from "../../load-term";
 import { PrintButton } from "../../print-button";
 import { PrintHeader } from "../../print-header";
@@ -33,7 +33,10 @@ export default async function TeacherTimetablePage({
       ? ctx.userName
       : (await listTeachers(ctx)).find((t) => t.userId === userId)?.name;
   if (!name) notFound();
-  const lessons = await getTeacherTimetable(ctx, userId, term.id);
+  const [lessons, plans] = await Promise.all([
+    getTeacherTimetable(ctx, userId, term.id),
+    getDayPlans(ctx, term.id),
+  ]);
   if (!lessons) notFound();
   const todayDay = term.startsOn <= today && today <= term.endsOn ? isoWeekday(today) : null;
   const title = `${name}: timetable`;
@@ -57,7 +60,12 @@ export default async function TeacherTimetablePage({
           }
         />
       </div>
-      <TeacherGrid caption={`${title}, ${term.name}`} lessons={lessons} today={todayDay} />
+      <TeacherGrid
+        caption={`${title}, ${term.name}`}
+        lessons={lessons}
+        plans={plans}
+        today={todayDay}
+      />
     </div>
   );
 }

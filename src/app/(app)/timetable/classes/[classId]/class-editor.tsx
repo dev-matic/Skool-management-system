@@ -2,9 +2,9 @@
 
 import { Save } from "lucide-react";
 import Link from "next/link";
-import { useActionState, useEffect, useId, useState } from "react";
+import { useActionState, useEffect, useId, useRef, useState } from "react";
 import { Alert, Button, Select, StatusChip, TINTS, cx, tintFor } from "@/components/ui";
-import { DAY_NAMES } from "@/domain/timetable";
+import { DAY_NAMES, overlaps } from "@/domain/timetable";
 import { saveClassTimetableAction, type FormState } from "@/server/actions/timetable";
 import type { ClassTimetable, RoomRow } from "@/server/timetable";
 
@@ -26,8 +26,10 @@ const same = (
 /**
  * The admin's weekly grid for one class: pick a subject in each cell with
  * the keyboard (Tab moves across the week); the teacher comes from the
- * class's subject assignments. Only changed cells are sent. Nothing is saved
- * if any lesson would clash, and each clash is named above the grid.
+ * class's subject assignments. Each menu marks teachers busy with another
+ * class at that time, so clashes are visible before saving. Only changed
+ * cells are sent; nothing is saved if any lesson would clash, and each clash
+ * is named above the grid and on its cell. Rooms are hidden until needed.
  */
 export function ClassEditor({
   timetable,
@@ -64,6 +66,25 @@ export function ClassEditor({
     return () => window.removeEventListener("beforeunload", warn);
   }, [dirty, pending]);
 
+  const [showRooms, setShowRooms] = useState(() => timetable.lessons.some((l) => l.roomId));
+  const alertRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (state.errors?.form) alertRef.current?.focus();
+  }, [state]);
+  const clashCells = state.clashCells ?? {};
+
+  /** Who else has a teacher or room at this cell's time: id -> class name. */
+  const busyAt = (day: number, startsAt: string, endsAt: string) => {
+    const teachers = new Map<string, string>();
+    const roomsBooked = new Map<string, string>();
+    for (const b of timetable.busy) {
+      if (b.day !== day || !overlaps(b, { startsAt, endsAt })) continue;
+      if (b.teacherId) teachers.set(b.teacherId, b.className);
+      if (b.roomId) roomsBooked.set(String(b.roomId), b.className);
+    }
+    return { teachers, rooms: roomsBooked };
+  };
+
   const subjectById = new Map(timetable.subjects.map((s) => [String(s.subjectId), s]));
   const lessonAt = new Map(timetable.lessons.map((l) => [`${l.periodId}:${l.day}`, l]));
   const activeRooms = rooms.filter((r) => !r.isArchived);
@@ -91,6 +112,17 @@ export function ClassEditor({
       <span className="text-label text-ink-secondary" aria-live="polite">
         {lessonCount} lesson{lessonCount === 1 ? "" : "s"} a week
       </span>
+      {activeRooms.length > 0 && (
+        <label className="ml-auto flex items-center gap-2 text-label font-semibold">
+          <input
+            type="checkbox"
+            className="size-4 pointer-coarse:size-5"
+            checked={showRooms}
+            onChange={(e) => setShowRooms(e.target.checked)}
+          />
+          Show rooms
+        </label>
+      )}
     </div>
   );
 
@@ -117,7 +149,7 @@ export function ClassEditor({
         })}
       </form>
       {state.errors?.form && (
-        <Alert tone="danger" title={state.errors.form}>
+        <Alert ref={alertRef} tabIndex={-1} tone="danger" title={state.errors.form}>
           {state.clashes && state.clashes.length > 0 && (
             <ul className="mt-1 list-disc pl-5">
               {state.clashes.map((c) => (
@@ -202,6 +234,12 @@ export function ClassEditor({
                         : (subject?.teacherName ?? null);
                     const isChanged = !same(saved[key], cell);
                     const name = `${timetable.className} ${DAY_NAMES[d]} ${p.name}`;
+                    const busy = busyAt(d, p.startsAt, p.endsAt);
+                    const busyClass = subject?.teacherId
+                      ? busy.teachers.get(subject.teacherId)
+                      : undefined;
+                    const roomClash = cell?.roomId ? busy.rooms.get(cell.roomId) : undefined;
+                    const clashes = clashCells[key];
                     return (
                       <td
                         key={d}
@@ -210,6 +248,7 @@ export function ClassEditor({
                           subjectId &&
                             TINTS[tintFor(subject?.name ?? before?.subjectName ?? "")].bg,
                           isChanged && "outline-2 -outline-offset-2 outline-warning",
+                          clashes && "outline-2 -outline-offset-2 outline-danger",
                         )}
                       >
                         <Select
@@ -222,11 +261,18 @@ export function ClassEditor({
                           )}
                         >
                           <option value="">Free</option>
-                          {timetable.subjects.map((s) => (
-                            <option key={s.subjectId} value={s.subjectId}>
-                              {s.name}
-                            </option>
-                          ))}
+                          {timetable.subjects.map((s) => {
+                            const elsewhere = s.teacherId
+                              ? busy.teachers.get(s.teacherId)
+                              : undefined;
+                            return (
+                              <option key={s.subjectId} value={s.subjectId}>
+                                {elsewhere
+                                  ? `${s.name} · ${s.teacherName} busy (${elsewhere})`
+                                  : s.name}
+                              </option>
+                            );
+                          })}
                           {before && !subjectById.has(String(before.subjectId)) && (
                             <option value={before.subjectId}>
                               {before.subjectName} (no longer taken)
@@ -243,7 +289,25 @@ export function ClassEditor({
                             {teacher ?? "No teacher assigned"}
                           </span>
                         )}
-                        {subjectId && activeRooms.length > 0 && (
+                        {busyClass && !clashes && (
+                          <span className="mt-0.5 block px-1 text-caption font-semibold text-danger">
+                            Busy with {busyClass} then
+                          </span>
+                        )}
+                        {roomClash && !clashes && (
+                          <span className="mt-0.5 block px-1 text-caption font-semibold text-danger">
+                            Room booked by {roomClash}
+                          </span>
+                        )}
+                        {clashes?.map((m) => (
+                          <span
+                            key={m}
+                            className="mt-0.5 block px-1 text-caption font-semibold text-danger"
+                          >
+                            {m}
+                          </span>
+                        ))}
+                        {subjectId && activeRooms.length > 0 && (showRooms || cell?.roomId) && (
                           <Select
                             aria-label={`${name} room`}
                             value={cell?.roomId ?? ""}
@@ -253,11 +317,14 @@ export function ClassEditor({
                             <option value="">No room</option>
                             {rooms
                               .filter((r) => !r.isArchived || String(r.id) === cell?.roomId)
-                              .map((r) => (
-                                <option key={r.id} value={r.id}>
-                                  {r.name}
-                                </option>
-                              ))}
+                              .map((r) => {
+                                const booked = busy.rooms.get(String(r.id));
+                                return (
+                                  <option key={r.id} value={r.id}>
+                                    {booked ? `${r.name} · booked (${booked})` : r.name}
+                                  </option>
+                                );
+                              })}
                           </Select>
                         )}
                       </td>
@@ -274,7 +341,8 @@ export function ClassEditor({
         <Link href="/setup/teachers" className="text-brand-strong underline">
           School setup › Teachers
         </Link>
-        . Changed cells are outlined until you save.
+        . Changed cells are outlined until you save; a teacher busy with another class at that time
+        is marked in the menu.
       </p>
       {saveBar}
     </div>

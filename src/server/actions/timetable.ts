@@ -22,6 +22,7 @@ export interface FormState {
   message?: string;
   errors?: Record<string, string>;
   clashes?: string[];
+  clashCells?: Record<string, string[]>;
 }
 
 const text = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
@@ -148,7 +149,13 @@ export async function saveClassTimetableAction(
     });
   }
   const result = await saveClassTimetable(ctx, classId, termId, cells, await requestMeta());
-  if (!result.ok) return { errors: { form: result.error }, clashes: result.clashes };
+  if (!result.ok) {
+    return {
+      errors: { form: result.error },
+      clashes: result.clashes,
+      clashCells: result.clashCells,
+    };
+  }
   revalidatePath("/timetable", "layout");
   revalidatePath("/dashboard");
   return { ok: true, message: result.message };

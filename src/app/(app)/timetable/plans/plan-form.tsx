@@ -193,7 +193,7 @@ export function PlanForm({
       </div>
 
       <fieldset className="flex flex-col gap-1">
-        <legend className="mb-1 text-label font-semibold">Followed by</legend>
+        <legend className="mb-1 text-label font-semibold">Used by</legend>
         {stages.length === 0 ? (
           <p className="text-ink-secondary">
             No grade levels yet. Add them on the{" "}

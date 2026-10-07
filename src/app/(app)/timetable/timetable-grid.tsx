@@ -53,7 +53,7 @@ export function TimetableGrid({
           <tr>
             <th
               scope="col"
-              className="h-10 border-b border-divider bg-subtle px-3 text-left text-label font-semibold text-ink-secondary print:border-black print:bg-transparent"
+              className="h-10 border-b border-divider bg-subtle px-3 text-left text-label font-semibold text-ink-secondary print:border-black print:bg-transparent print:text-black"
             >
               Period
             </th>
@@ -108,7 +108,7 @@ export function TimetableGrid({
                       key={d}
                       className={cx(
                         "border-b border-l border-divider p-1 align-top print:border-black",
-                        d === today && "bg-brand-tint/40",
+                        d === today && "bg-brand-tint/40 print:bg-transparent",
                       )}
                     >
                       {here.length === 0 ? (

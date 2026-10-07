@@ -30,7 +30,12 @@ export default async function ClassTimetablesPage({
     getDayPlans(ctx, term.id),
     isAdmin ? getSchoolTimetable(ctx, term.id) : Promise.resolve(null),
   ]);
-  const planFor = (stage: string) => plans.find((p) => p.stages.some((s) => s === stage))?.name;
+  const planOf = (stage: string) => plans.find((p) => p.stages.some((s) => s === stage));
+  const planFor = (stage: string) => planOf(stage)?.name;
+  const slots = (stage: string) => {
+    const p = planOf(stage);
+    return p ? p.periods.filter((x) => x.kind === "lesson").length * p.days.length : 0;
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -49,7 +54,7 @@ export default async function ClassTimetablesPage({
             <Th>Class</Th>
             <Th>Stage</Th>
             <Th>Day plan</Th>
-            {isAdmin && <Th numeric>Lessons a week</Th>}
+            {isAdmin && <Th numeric>Lessons filled</Th>}
           </tr>
         </THead>
         <TBody>
@@ -77,7 +82,11 @@ export default async function ClassTimetablesPage({
               <Td className={planFor(c.stage) ? undefined : "text-warning"}>
                 {planFor(c.stage) ?? "None yet"}
               </Td>
-              {isAdmin && <Td numeric>{lessons?.filter((l) => l.classId === c.id).length ?? 0}</Td>}
+              {isAdmin && (
+                <Td numeric>
+                  {lessons?.filter((l) => l.classId === c.id).length ?? 0} of {slots(c.stage)}
+                </Td>
+              )}
             </Tr>
           ))}
         </TBody>

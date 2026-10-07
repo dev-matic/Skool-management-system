@@ -1,19 +1,22 @@
 import { TableEmpty } from "@/components/ui";
-import type { TimetableLesson } from "@/server/timetable";
+import type { DayPlan, TimetableLesson } from "@/server/timetable";
 import { TimetableGrid, lessonMap, type GridRow } from "./timetable-grid";
 
 /**
- * A teacher's week. Their lessons can come from different day plans (KG and
- * JHS), so rows are the distinct lesson times, named after the period.
+ * A teacher's week. When all their lessons follow one day plan, rows are
+ * that plan's periods and breaks. Lessons from different day plans (KG and
+ * JHS) use the distinct lesson times instead, named after the period.
  */
 export function TeacherGrid({
   caption,
   lessons,
   today,
+  plans = [],
 }: {
   caption: string;
   lessons: TimetableLesson[];
   today: number | null;
+  plans?: DayPlan[];
 }) {
   if (lessons.length === 0) {
     return (
@@ -25,6 +28,28 @@ export function TeacherGrid({
           </tbody>
         </table>
       </div>
+    );
+  }
+  const plan = plans.find((p) => lessons.every((l) => p.periods.some((x) => x.id === l.periodId)));
+  if (plan) {
+    return (
+      <TimetableGrid
+        caption={caption}
+        days={[...new Set([...plan.days, ...lessons.map((l) => l.day)])].sort((a, b) => a - b)}
+        today={today}
+        rows={plan.periods.map((p) => ({
+          key: String(p.id),
+          label: p.name,
+          startsAt: p.startsAt,
+          endsAt: p.endsAt,
+          isBreak: p.kind === "break",
+        }))}
+        lessons={lessonMap(
+          lessons,
+          (l) => String(l.periodId),
+          (l) => ({ title: l.subjectName, detail: l.className, room: l.roomName }),
+        )}
+      />
     );
   }
   const slot = (l: TimetableLesson) => `${l.startsAt}-${l.endsAt}`;

@@ -17,7 +17,12 @@ import { hasAnyRole } from "@/domain/roles";
 import { DAY_NAMES, isoWeekday } from "@/domain/timetable";
 import { listTeachers } from "@/server/classes";
 import { requireRole } from "@/server/tenant";
-import { getSchoolTimetable, getTeacherTimetable, listTimetableClasses } from "@/server/timetable";
+import {
+  getDayPlans,
+  getSchoolTimetable,
+  getTeacherTimetable,
+  listTimetableClasses,
+} from "@/server/timetable";
 import { loadTerm } from "./load-term";
 import { PrintButton } from "./print-button";
 import { PrintHeader } from "./print-header";
@@ -49,7 +54,11 @@ export default async function TimetablePage({ searchParams }: { searchParams: Pr
   const todayDay = inTerm ? isoWeekday(today) : null;
 
   if (!hasAnyRole(ctx.roles, ["admin"])) {
-    const lessons = (await getTeacherTimetable(ctx, ctx.userId, term.id)) ?? [];
+    const [mine, plans] = await Promise.all([
+      getTeacherTimetable(ctx, ctx.userId, term.id),
+      getDayPlans(ctx, term.id),
+    ]);
+    const lessons = mine ?? [];
     return (
       <div className="flex flex-col gap-4">
         <PrintHeader
@@ -69,7 +78,12 @@ export default async function TimetablePage({ searchParams }: { searchParams: Pr
             }
           />
         </div>
-        <TeacherGrid caption={`My timetable, ${term.name}`} lessons={lessons} today={todayDay} />
+        <TeacherGrid
+          caption={`My timetable, ${term.name}`}
+          lessons={lessons}
+          plans={plans}
+          today={todayDay}
+        />
       </div>
     );
   }

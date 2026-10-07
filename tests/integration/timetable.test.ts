@@ -249,7 +249,29 @@ describe("class timetables", () => {
         "Kwabena Frimpong is already teaching JHS 1A (Mathematics) on Monday 08:00–08:40, so cannot teach JHS 1B Mathematics then.",
       ],
     });
+    expect(Object.keys((result as { clashCells: object }).clashCells)).toEqual([
+      `${p["Period 1"]}:1`,
+    ]);
     expect((await getClassTimetable(asAdmin(), cls["JHS 1B"]!, t1))!.lessons).toEqual([]);
+  });
+
+  it("tells admins (not teachers) when other classes keep a teacher busy", async () => {
+    const forAdmin = await getClassTimetable(asAdmin(), cls["JHS 1B"]!, t1);
+    expect(forAdmin!.busy).toEqual([
+      expect.objectContaining({
+        teacherId: people["Kwabena Frimpong"]!.id,
+        className: "JHS 1A",
+        day: 1,
+        startsAt: "08:00",
+        endsAt: "08:40",
+      }),
+    ]);
+    const forTeacher = await getClassTimetable(
+      ctxFor("Nana Ama Osei", ["teacher"]),
+      cls["JHS 1A"]!,
+      t1,
+    );
+    expect(forTeacher!.busy).toEqual([]);
   });
 
   it("finds a clash with a KG lesson in a different day plan", async () => {

@@ -45,7 +45,14 @@ interface RequestMeta {
 
 export type Result =
   | { ok: true; message: string; id?: number }
-  | { ok: false; error: string; errors?: FieldErrors; clashes?: string[] };
+  | {
+      ok: false;
+      error: string;
+      errors?: FieldErrors;
+      clashes?: string[];
+      /** Clash messages by class timetable cell ("periodId:day"). */
+      clashCells?: Record<string, string[]>;
+    };
 
 const NOT_ALLOWED: Result = { ok: false, error: "Only administrators can change timetables." };
 
@@ -583,6 +590,18 @@ export interface ClassTimetable {
     teacherId: string | null;
     teacherName: string | null;
   }[];
+  /**
+   * Other classes' lessons this term with a teacher or room (admins only),
+   * so the editor can mark busy teachers and booked rooms before saving.
+   */
+  busy: {
+    teacherId: string | null;
+    roomId: number | null;
+    className: string;
+    day: number;
+    startsAt: string;
+    endsAt: string;
+  }[];
 }
 
 /**
@@ -679,6 +698,18 @@ export async function getClassTimetable(
         .where(eq(classSubject.classGroupId, classId))
         .orderBy(asc(subject.name)),
     ]);
+    const busy = isAdmin(ctx)
+      ? (await termSlots(tx, termId))
+          .filter((x) => x.classId !== classId && (x.teacherId || x.roomId))
+          .map((x) => ({
+            teacherId: x.teacherId,
+            roomId: x.roomId,
+            className: x.className,
+            day: x.day,
+            startsAt: parseTime(x.startsAt)!,
+            endsAt: parseTime(x.endsAt)!,
+          }))
+      : [];
     return {
       term: t,
       classId: cls.id,
@@ -688,6 +719,7 @@ export async function getClassTimetable(
       plan,
       lessons,
       subjects,
+      busy,
     };
   });
 }
@@ -812,12 +844,21 @@ export async function saveClassTimetable(
     const others = all.filter(
       (s) => !(s.classId === classId && changing.has(slotKey(s.periodId, s.day))),
     );
-    const clashes = findClashes(saving, others);
+    // Checked one lesson at a time so each clash can be shown on its cell.
+    const clashCells: Record<string, string[]> = {};
+    const checked: LessonSlot[] = [...others];
+    for (const lesson of saving) {
+      const found = findClashes([lesson], checked);
+      if (found.length > 0) clashCells[slotKey(lesson.cell.periodId, lesson.cell.day)] = found;
+      checked.push(lesson);
+    }
+    const clashes = [...new Set(Object.values(clashCells).flat())];
     if (clashes.length > 0) {
       return {
         ok: false,
         error: `Nothing was saved: ${clashes.length === 1 ? "1 clash" : `${clashes.length} clashes`} to fix.`,
         clashes,
+        clashCells,
       };
     }
 
