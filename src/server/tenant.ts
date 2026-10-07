@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { cache } from "react";
 import { membership, school } from "@/db/schema";
 import { hasAnyRole, PHASE1_ROLES, resolveActiveSchool, type Role } from "@/domain/roles";
+import { configProblems } from "@/env";
 import { getAuth } from "./auth";
 import { withDbContext, type Tx } from "./db-context";
 
@@ -39,6 +40,8 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   // Read the request headers first: that marks the page as dynamic, so a
   // production build never reaches getAuth() (which needs the secrets).
   const requestHeaders = await headers();
+  // A deployment without its settings shows how to finish setting up.
+  if (configProblems().length > 0) redirect("/setup-needed");
   const result = await getAuth().api.getSession({ headers: requestHeaders });
   if (!result || result.user.isActive === false) return null;
   return {

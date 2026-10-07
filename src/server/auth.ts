@@ -16,6 +16,8 @@ function createAuth() {
     appName: "School Management System",
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
+    // Vercel preview links of this deployment may sign in too.
+    trustedOrigins: env.trustedOrigins,
     database: drizzleAdapter(getDb(), {
       provider: "pg",
       schema: { user, session, account, verification },
